@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ombench import __version__
-from ombench.cli import memcmds, synccmds, tracecmds
+from ombench.cli import evalcmds, memcmds, synccmds, tracecmds
 from ombench.config import load_config
 
 app = typer.Typer(
@@ -25,6 +25,13 @@ app.add_typer(tracecmds.app, name="trace")
 app.add_typer(synccmds.sync_app, name="sync")
 app.add_typer(synccmds.snapshot_app, name="snapshot")
 app.add_typer(memcmds.app, name="memory")
+app.add_typer(evalcmds.app, name="eval")
+
+
+@app.command()
+def demo() -> None:
+    """Run the full end to end synthetic backtest and print the results."""
+    evalcmds.demo()
 
 console = Console()
 
