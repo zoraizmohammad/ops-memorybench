@@ -1,0 +1,58 @@
+{
+  "calendar": {"id": "alice@acme.com", "summary": "Alice", "timeZone": "America/Los_Angeles"},
+  "sync_batches": [
+    {
+      "sync_token": "TOKEN_1",
+      "events": [
+        {
+          "id": "ev_1on1_bob",
+          "status": "confirmed",
+          "summary": "1:1 Alice and Bob",
+          "start": {"dateTime": "2026-05-20T09:00:00-07:00"},
+          "end": {"dateTime": "2026-05-20T09:30:00-07:00"},
+          "recurrence": ["RRULE:FREQ=WEEKLY;BYDAY=WE"],
+          "attendees": [
+            {"email": "alice@acme.com", "responseStatus": "accepted"},
+            {"email": "bob@acme.com", "responseStatus": "accepted"}
+          ],
+          "updated": "2026-05-01T12:00:00.000Z"
+        },
+        {
+          "id": "ev_standup",
+          "status": "confirmed",
+          "summary": "Daily standup",
+          "start": {"dateTime": "2026-05-18T10:00:00-07:00"},
+          "end": {"dateTime": "2026-05-18T10:15:00-07:00"},
+          "attendees": [
+            {"email": "alice@acme.com", "responseStatus": "accepted"},
+            {"email": "carol@acme.com", "responseStatus": "tentative"}
+          ],
+          "updated": "2026-05-02T08:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "sync_token": "TOKEN_2",
+      "events": [
+        {
+          "id": "ev_1on1_bob",
+          "status": "confirmed",
+          "summary": "1:1 Alice and Bob",
+          "start": {"dateTime": "2026-05-20T15:00:00-07:00"},
+          "end": {"dateTime": "2026-05-20T15:30:00-07:00"},
+          "recurrence": ["RRULE:FREQ=WEEKLY;BYDAY=WE"],
+          "attendees": [
+            {"email": "alice@acme.com", "responseStatus": "accepted"},
+            {"email": "bob@acme.com", "responseStatus": "accepted"}
+          ],
+          "updated": "2026-05-14T17:00:10.000Z"
+        },
+        {
+          "id": "ev_offsite",
+          "status": "cancelled",
+          "updated": "2026-05-14T18:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}
