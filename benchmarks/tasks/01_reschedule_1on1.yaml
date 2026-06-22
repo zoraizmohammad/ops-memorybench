@@ -1,0 +1,20 @@
+task_id: "01_reschedule_1on1"
+title: Reschedule a recurring 1:1
+prompt: Reschedule my 1:1 with Bob, it conflicts next week
+as_of_valid: "2026-05-10T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - prefers afternoons
+expected_writes:
+  - app: gcal
+    action: update_event
+    expect:
+      start: "15:00"
+    description: reschedule to an afternoon slot
+forbidden_actions:
+  - delete_event
+max_writes: 1
+why_memory: >
+  The user's preference for afternoons and avoidance of Fridays lives in past
+  interactions, not in the calendar snapshot, which only shows bookings. Without
+  the compiled preference the agent has no basis to choose an afternoon slot.

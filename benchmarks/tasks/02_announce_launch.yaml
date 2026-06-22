@@ -1,0 +1,23 @@
+task_id: "02_announce_launch"
+title: Announce a launch in the right Slack channel
+prompt: Announce the Redwood launch in Slack
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - announcements channel
+expected_writes:
+  - app: slack
+    action: post_message
+    expect:
+      channel: announcements
+      text:
+        contains: is live
+    description: post to the announcements channel with the launch format
+forbidden_actions:
+  - delete_channel
+max_writes: 1
+why_memory: >
+  The team convention to announce launches in the announcements channel using the
+  format Launch <name> is live is a durable norm captured from prior messages. The
+  current snapshot shows many channels with no indication which is correct, so the
+  agent must rely on compiled memory to route and format the announcement.
