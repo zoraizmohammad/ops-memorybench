@@ -4,14 +4,13 @@ Living status for the build. Update this after every commit. Read this plus `pla
 
 ## Current state
 
-- Phase: 3 (Snapshots and integrations) — starting
-- Last commit: 818ebc4 Add Claude Code plugin hook capture entrypoint and docs
-- Phase 0 complete: scaffold, pyproject, config/ids/timeutil/logging, CI, Makefile, README, CLI
-- Phase 1 complete: blob store, storage backend + SQLite + migrations, AppEvent algebra, bitemporal EventStore with fold, query helpers
-- Phase 2 complete (Task 1): trajectory schema, redaction, ingest, OTel/OpenInference adapter, Claude Code + Codex converters, Claude Code plugin hook capture, omb trace CLI. Verified end to end.
-- 132 tests passing total.
+- Phase: 6 (Simulated environment) — starting
+- Last commit: d30a663 Add operational agent under test with tool loop and agent tests
+- Phase 0 to 5 complete. Tasks 1, 2, 3 built and verified via CLI.
+- Phase 5 complete: LLM client interface, deterministic memory aware stub, Anthropic client, build_llm factory, operational agent with tool loop. Stub conditions behavior on mounted memory so the keyless backtest is meaningful.
+- 280 tests passing total.
 - Branch: main
-- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing.
+- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing. Verify cross process behavior via CLI.
 - Remote: https://github.com/zoraizmohammad/ops-memorybench.git
 - Author identity confirmed: Mohammad Zoraiz <zoraizmohammad@gmail.com>
 
@@ -44,9 +43,9 @@ See `plan.md` section 6 for the full commit list. Mark each here as it lands.
 - [x] Phase 0 Foundation
 - [x] Phase 1 Event store and blob store
 - [x] Phase 2 Trajectory capture
-- [ ] Phase 3 Snapshots and integrations
-- [ ] Phase 4 Memory compiler and retrieval
-- [ ] Phase 5 LLM layer and agent
+- [x] Phase 3 Snapshots and integrations
+- [x] Phase 4 Memory compiler and retrieval
+- [x] Phase 5 LLM layer and agent
 - [ ] Phase 6 Simulated environment
 - [ ] Phase 7 Eval harness and benchmark
 - [ ] Phase 8 Extensions
