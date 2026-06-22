@@ -4,14 +4,12 @@ Living status for the build. Update this after every commit. Read this plus `pla
 
 ## Current state
 
-- Phase: 9 (Docs demo deliverables and polish) — finishing
-- Phase 0 to 9 essentially complete. All six prompt tasks plus all twelve extensions built, documented, and verified.
-- Deliverables done: README (diagram, concrete example, results table), docs/ set, demo script + captured example, notebooks, docker-compose for the production swap.
-- Headline result (keyless, deterministic): mean rubric 0.23 to 0.87, success 7 percent to 100 percent, win rate 1.0, Wilcoxon p 0.0007.
-- Clean clone installs, all tests pass, omb demo runs keyless. mypy reduced to live-integration-only findings (non blocking).
-- Branch: main
-- Remaining: incorporate adversarial review findings, final sign-off.
-- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing.
+- COMPLETE. All nine phases done. All six prompt tasks plus all twelve extensions built, documented, tested, and verified.
+- Deliverables: README (diagram, concrete example, honest results table), docs/ set, demo script + captured example, notebooks, docker-compose for the production swap, Claude Code capture plugin.
+- An adversarial code review found and confirmed 15 correctness bugs, all fixed with regression tests. The most important was a measurement integrity issue: the headline now compares the outcome grounded score (task outcome + action validity), not the four axis total whose memory axes are zero for the without condition by construction.
+- Honest headline result (keyless, deterministic): mean outcome score 0.38 to 1.0, success 7 percent to 100 percent, win rate 0.93 (14 of 15 tasks improve, 1 neutral, none regress), Wilcoxon p around 0.001 (0.0002 with SciPy).
+- 397 tests passing. Clean clone installs, all tests pass, omb demo runs keyless. Lint clean.
+- Branch: main, all work pushed.
 - Remote: https://github.com/zoraizmohammad/ops-memorybench.git
 - Author identity confirmed: Mohammad Zoraiz <zoraizmohammad@gmail.com>
 
@@ -50,7 +48,7 @@ See `plan.md` section 6 for the full commit list. Mark each here as it lands.
 - [x] Phase 6 Simulated environment
 - [x] Phase 7 Eval harness and benchmark
 - [x] Phase 8 Extensions
-- [ ] Phase 9 Docs demo deliverables and polish
+- [x] Phase 9 Docs demo deliverables and polish
 
 ## Notes for the next session
 
