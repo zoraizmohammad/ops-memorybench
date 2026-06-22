@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS app_events (
     parent_entity_ref TEXT,
     source_cursor     TEXT,                     -- sync token, page token, historyId, ts
     provenance_hash   TEXT,                     -- blob hash of the provenance record
-    seq               INTEGER                   -- monotonic ingest sequence, tie breaker
+    seq               INTEGER,                  -- monotonic ingest sequence, tie breaker
+    edge_target       TEXT,                     -- target id for edge operations
+    edge_kind         TEXT                      -- relationship kind for edge operations
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_entity

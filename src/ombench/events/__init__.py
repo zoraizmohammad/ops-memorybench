@@ -16,6 +16,7 @@ from .schema import (
     AppEvent,
     Op,
 )
+from .store import EntityState, EventStore
 
 __all__ = [
     "DELETE_OPS",
@@ -23,6 +24,8 @@ __all__ = [
     "UPSERT_OPS",
     "App",
     "AppEvent",
+    "EntityState",
+    "EventStore",
     "Op",
     "algebra",
 ]
