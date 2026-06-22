@@ -1,0 +1,36 @@
+{
+  "drive": {"id": "acme-drive"},
+  "documents": [
+    {
+      "id": "doc_meeting_notes_tmpl",
+      "name": "Meeting Notes Template",
+      "mimeType": "application/vnd.google-apps.document",
+      "owners": ["alice@acme.com"],
+      "revisions": [
+        {
+          "revision_id": "r1",
+          "modified_time": "2026-04-10T10:00:00.000Z",
+          "exported_markdown": "# Meeting Notes\n\n## Attendees\n\n## Agenda\n\n## Decisions\n\n## Action Items\n"
+        }
+      ]
+    },
+    {
+      "id": "doc_redwood_overview",
+      "name": "Redwood Launch Overview",
+      "mimeType": "application/vnd.google-apps.document",
+      "owners": ["alice@acme.com"],
+      "revisions": [
+        {
+          "revision_id": "r1",
+          "modified_time": "2026-05-01T09:00:00.000Z",
+          "exported_markdown": "# Redwood Launch\n\nStatus draft. Owner alice. Approver is the VP of Product.\n"
+        },
+        {
+          "revision_id": "r2",
+          "modified_time": "2026-05-12T14:30:00.000Z",
+          "exported_markdown": "# Redwood Launch\n\nStatus ready. Owner alice. Approver is the VP of Product. Launch date 2026-05-20.\n\n## Naming convention\n\nCustomer docs are named Customer <Name> <YYYY-MM-DD>.\n"
+        }
+      ]
+    }
+  ]
+}
