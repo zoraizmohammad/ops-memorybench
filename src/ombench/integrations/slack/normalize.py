@@ -66,5 +66,18 @@ def channel_created_at(channel: dict[str, Any]) -> datetime:
     return from_epoch(created) if created else from_epoch("0")
 
 
+def user_valid_anchor(data: dict[str, Any]) -> datetime:
+    """A stable valid time anchor for users, who lack a creation timestamp.
+
+    Uses the earliest channel creation time in the workspace as a proxy for "has
+    existed as long as we have observed this workspace". This is deterministic
+    across syncs, so user event ids are stable and re sync is idempotent.
+    """
+    created = [c.get("created") for c in data.get("channels", []) if c.get("created")]
+    if not created:
+        return from_epoch("0")
+    return from_epoch(min(created))
+
+
 def message_ts(ts: str) -> datetime:
     return from_epoch(ts)

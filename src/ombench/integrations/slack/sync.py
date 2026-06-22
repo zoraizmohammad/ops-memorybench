@@ -65,12 +65,17 @@ class SlackSync(Integration):
 
     def sync(self, *, ingested_at: datetime) -> Iterator[AppEvent]:
         data = self._load()
-        # Users first so message authors resolve.
+        # Users first so message authors resolve. Slack users have no creation
+        # timestamp in the API, so their valid time is a stable epoch anchor rather
+        # than the ingest clock; otherwise the derived event id would change on every
+        # sync and break idempotence. The anchor means "has existed as long as we
+        # have observed the workspace".
+        user_valid_at = norm.user_valid_anchor(data)
         for user in data.get("users", []):
             nu = norm.normalize_user(user)
             yield algebra.upsert_entity(
                 app="slack", entity_type="user", entity_id=nu["id"], payload=nu,
-                valid_at=ingested_at, ingested_at=ingested_at,
+                valid_at=user_valid_at, ingested_at=ingested_at,
                 provenance={"source": "slack.users.list"},
             )
 
