@@ -1,0 +1,1 @@
+"""ombench.integrations.slack subpackage."""

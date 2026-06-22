@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ombench"
+version = "0.1.0"
+description = "Memory and backtesting platform for operational agents. A bitemporal SaaS history substrate, a knowledge base compiler, and a deterministic replay and backtest harness."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Mohammad Zoraiz", email = "zoraizmohammad@gmail.com" }]
+keywords = [
+    "agent-memory",
+    "bitemporal",
+    "event-sourcing",
+    "backtesting",
+    "knowledge-base",
+    "trajectory",
+    "replay",
+]
+
+# Core runtime dependencies are intentionally minimal so the platform installs
+# and runs the full keyless loop with a small footprint. Heavier optional
+# capabilities (real LLM calls, statistics, dataframe analysis) live in extras.
+dependencies = [
+    "pydantic>=2.5",
+    "typer>=0.9",
+    "rich>=13.0",
+    "python-dotenv>=1.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.39"]
+stats = ["scipy>=1.11", "numpy>=1.26", "statsmodels>=0.14"]
+analysis = ["duckdb>=0.9", "pandas>=2.0"]
+google = [
+    "google-api-python-client>=2.100",
+    "google-auth>=2.23",
+    "google-auth-oauthlib>=1.1",
+]
+slack = ["slack-sdk>=3.23"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "hypothesis>=6.90",
+    "ruff>=0.1",
+    "mypy>=1.7",
+]
+all = [
+    "anthropic>=0.39",
+    "scipy>=1.11",
+    "numpy>=1.26",
+    "statsmodels>=0.14",
+    "duckdb>=0.9",
+    "pandas>=2.0",
+    "google-api-python-client>=2.100",
+    "google-auth>=2.23",
+    "google-auth-oauthlib>=1.1",
+    "slack-sdk>=3.23",
+]
+
+[project.scripts]
+omb = "ombench.cli.main:app"
+
+[project.urls]
+Homepage = "https://github.com/zoraizmohammad/ops-memorybench"
+Repository = "https://github.com/zoraizmohammad/ops-memorybench"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ombench = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "live: tests that require live credentials and network access",
+    "slow: tests that take a long time to run",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_ignores = true
+ignore_missing_imports = true
+packages = ["ombench"]
