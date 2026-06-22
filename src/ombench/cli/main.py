@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ombench import __version__
-from ombench.cli import evalcmds, memcmds, saasgit, synccmds, tracecmds
+from ombench.cli import evalcmds, memcmds, saasgit, synccmds, tracecmds, vizcmds
 from ombench.config import load_config
 
 app = typer.Typer(
@@ -27,6 +27,7 @@ app.add_typer(synccmds.snapshot_app, name="snapshot")
 app.add_typer(memcmds.app, name="memory")
 app.add_typer(evalcmds.app, name="eval")
 app.add_typer(saasgit.app, name="saasgit")
+app.add_typer(vizcmds.app, name="viz")
 
 
 @app.command()
