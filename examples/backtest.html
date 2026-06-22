@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ombench backtest</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 2rem; color: #1a1a1a; }
+  h1 { font-size: 1.4rem; }
+  table { border-collapse: collapse; margin-top: 1rem; width: 100%; }
+  th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 0.9rem; }
+  th { background: #f4f1ea; }
+  tr.win td { background: #eaf7ea; }
+  tr.loss td { background: #fdeaea; }
+  .headline { font-size: 1.1rem; margin: 1rem 0; }
+  .stat { color: #555; }
+</style>
+</head>
+<body>
+<h1>ombench backtest</h1>
+<p class="headline">Mean rubric total
+  <b>0.2267</b> without memory &rarr;
+  <b>0.8667</b> with memory
+  (delta <b>0.64</b>).</p>
+<p class="stat">Success rate 0.0667 &rarr; 1.0;
+  win rate 1.0 (CI [1.0, 1.0]);
+  mean delta 95% CI [0.5867, 0.6667];
+  Wilcoxon p 0.0007 (normal_approx).</p>
+<table>
+  <thead><tr>
+    <th>task</th><th>outcome w/o</th><th>outcome w/</th>
+    <th>retrieval w/</th><th>application w/</th><th>validity w/</th><th>delta</th>
+  </tr></thead>
+  <tbody>
+<tr class='win'><td>01_reschedule_1on1</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>02_announce_launch</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>03_meeting_notes_template</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>04_invite_approver</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>05_name_document</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>06_prior_decision</td><td>1.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.2667</td></tr>
+<tr class='win'><td>07_vip_contact</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>08_travel_itinerary</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>09_external_call_timezone</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>10_weekly_summary</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>11_route_request</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>12_dm_or_public</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>13_update_project_page</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>14_triage_decline</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+<tr class='win'><td>15_follow_up_after_failure</td><td>0.0</td><td>1.0</td><td>0.3333</td><td>1.0</td><td>1.0</td><td>0.6667</td></tr>
+  </tbody>
+</table>
+</body>
+</html>
