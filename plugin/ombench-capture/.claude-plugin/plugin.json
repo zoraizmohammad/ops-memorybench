@@ -1,0 +1,10 @@
+{
+  "name": "ombench-capture",
+  "version": "0.1.0",
+  "description": "Capture Claude Code agent trajectories into the ombench history substrate for knowledge base compilation and backtesting.",
+  "author": {
+    "name": "Mohammad Zoraiz",
+    "email": "zoraizmohammad@gmail.com"
+  },
+  "homepage": "https://github.com/zoraizmohammad/ops-memorybench"
+}
