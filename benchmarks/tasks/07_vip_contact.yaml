@@ -1,0 +1,18 @@
+task_id: "07_vip_contact"
+title: Handle a VIP contact with a personal reply
+prompt: Follow up with VIP Alice about the review
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - prefers direct messages
+expected_writes:
+  - app: slack
+    action: send_dm
+    expect:
+      user: U_ALICE
+    description: reply privately per the personal relationship context
+max_writes: 1
+why_memory: >
+  The personal relationship context that this contact prefers direct messages and is
+  high priority is not in the contact record. Without the compiled preference the
+  agent would default to a public post rather than a personal direct message.

@@ -1,0 +1,18 @@
+task_id: "13_update_project_page"
+title: Update the canonical project page
+prompt: Update the project page with the latest Redwood status
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - canonical
+expected_writes:
+  - app: gdocs
+    action: update_document
+    expect:
+      document_id: doc_redwood_overview
+    description: edit the canonical source of truth document
+max_writes: 1
+why_memory: >
+  Multiple live documents may exist, and only one is the canonical source of truth.
+  Without the compiled memory of which document is canonical the agent could edit a
+  stale branch instead of the right page.

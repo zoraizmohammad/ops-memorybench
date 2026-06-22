@@ -1,0 +1,19 @@
+task_id: "08_travel_itinerary"
+title: Create a travel itinerary with preferences
+prompt: Create a travel itinerary for the Denver trip
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - aisle
+expected_writes:
+  - app: gcal
+    action: create_event
+    expect:
+      summary:
+        contains: aisle
+    description: apply the stored airline and seating preferences
+max_writes: 1
+why_memory: >
+  The user has durable airline and seating preferences that the calendar and inbox do
+  not encode. Applying the correct travel preferences requires the compiled personal
+  memory.

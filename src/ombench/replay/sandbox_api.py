@@ -41,6 +41,18 @@ SLACK_TOOLS = [
             "required": ["channel", "text"],
         },
     ),
+    ToolSpec(
+        name="slack.send_dm",
+        description="Send a direct message to a single user instead of posting publicly.",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "user": {"type": "string"},
+                "text": {"type": "string"},
+            },
+            "required": ["user", "text"],
+        },
+    ),
 ]
 
 GCAL_TOOLS = [
@@ -65,15 +77,43 @@ GCAL_TOOLS = [
             "required": ["event_id"],
         },
     ),
+    ToolSpec(
+        name="gcal.create_event",
+        description="Create a calendar event with a summary, start, and attendees.",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "summary": {"type": "string"},
+                "start": {"type": "string"},
+                "attendees": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": ["summary"],
+        },
+    ),
+    ToolSpec(
+        name="gcal.respond_event",
+        description="Respond to a calendar invitation, accept or decline.",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "event_id": {"type": "string"},
+                "response": {"type": "string", "enum": ["accepted", "declined", "tentative"]},
+            },
+            "required": ["event_id", "response"],
+        },
+    ),
 ]
 
 GDOCS_TOOLS = [
     ToolSpec(
         name="gdocs.create_document",
-        description="Create a Google Doc with a given name.",
+        description="Create a Google Doc with a given name and optional body.",
         input_schema={
             "type": "object",
-            "properties": {"name": {"type": "string"}},
+            "properties": {
+                "name": {"type": "string"},
+                "body": {"type": "string"},
+            },
             "required": ["name"],
         },
     ),
@@ -83,6 +123,18 @@ GDOCS_TOOLS = [
         input_schema={
             "type": "object",
             "properties": {"document_id": {"type": "string"}},
+            "required": ["document_id"],
+        },
+    ),
+    ToolSpec(
+        name="gdocs.update_document",
+        description="Update the body of an existing Google Doc by id.",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "document_id": {"type": "string"},
+                "body": {"type": "string"},
+            },
             "required": ["document_id"],
         },
     ),
@@ -122,8 +174,12 @@ class SandboxToolRouter:
     def _slack_post_message(self, args: dict[str, Any]):
         channel = args.get("channel", "")
         target = self._resolve_channel(channel)
+        # Record the channel the agent named (its intent) plus the resolved id, so
+        # validation reflects the decision the agent made rather than the lookup.
         result = self.sandbox.apply_write(
-            "slack", "post_message", {"channel": target, "text": args.get("text", "")}
+            "slack",
+            "post_message",
+            {"channel": channel, "channel_id": target, "text": args.get("text", "")},
         ).result
         refs = [AppRef(app="slack", entity_type="channel", entity_id=target, role="write")]
         return result, refs
@@ -135,6 +191,14 @@ class SandboxToolRouter:
             if payload.get("name") == channel or payload.get("id") == channel:
                 return payload.get("id", channel)
         return channel
+
+    def _slack_send_dm(self, args: dict[str, Any]):
+        user = args.get("user", "")
+        result = self.sandbox.apply_write(
+            "slack", "send_dm", {"user": user, "text": args.get("text", "")}
+        ).result
+        refs = [AppRef(app="slack", entity_type="user", entity_id=user, role="write")]
+        return result, refs
 
     # -- calendar ---------------------------------------------------------
 
@@ -150,12 +214,32 @@ class SandboxToolRouter:
         refs = [AppRef(app="gcal", entity_type="event", entity_id=eid, role="write")]
         return result, refs
 
+    def _gcal_create_event(self, args: dict[str, Any]):
+        result = self.sandbox.apply_write("gcal", "create_event", dict(args)).result
+        refs = [AppRef(app="gcal", entity_type="event", entity_id=args.get("summary", "new"), role="write")]
+        return result, refs
+
+    def _gcal_respond_event(self, args: dict[str, Any]):
+        eid = args.get("event_id", "")
+        result = self.sandbox.apply_write("gcal", "respond_event", dict(args)).result
+        refs = [AppRef(app="gcal", entity_type="event", entity_id=eid, role="write")]
+        return result, refs
+
     # -- docs -------------------------------------------------------------
 
     def _gdocs_create_document(self, args: dict[str, Any]):
         name = args.get("name", "")
-        result = self.sandbox.apply_write("gdocs", "create_document", {"name": name}).result
+        payload = {"name": name}
+        if "body" in args:
+            payload["body"] = args["body"]
+        result = self.sandbox.apply_write("gdocs", "create_document", payload).result
         refs = [AppRef(app="gdocs", entity_type="document", entity_id=name, role="write")]
+        return result, refs
+
+    def _gdocs_update_document(self, args: dict[str, Any]):
+        did = args.get("document_id", "")
+        result = self.sandbox.apply_write("gdocs", "update_document", dict(args)).result
+        refs = [AppRef(app="gdocs", entity_type="document", entity_id=did, role="write")]
         return result, refs
 
     def _gdocs_get_document(self, args: dict[str, Any]):

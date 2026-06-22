@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any
 
 from ..llm.base import LLMClient, Message, Role
 from ..replay.sandbox import WriteAction
@@ -40,6 +41,15 @@ class RunArtifacts:
     final_text: str = ""
 
 
+def _contains(value: Any, needle: str) -> bool:
+    """Substring containment that also matches across list elements."""
+    if isinstance(value, str):
+        return needle in value.lower()
+    if isinstance(value, (list, tuple)):
+        return any(isinstance(x, str) and needle in x.lower() for x in value)
+    return False
+
+
 def _build_assertions(task: TaskSpec) -> list[StateAssertion]:
     assertions: list[StateAssertion] = []
     for ew in task.expected_writes:
@@ -47,7 +57,7 @@ def _build_assertions(task: TaskSpec) -> list[StateAssertion]:
         for k, v in ew.expect.items():
             if isinstance(v, dict) and "contains" in v:
                 needle = str(v["contains"]).lower()
-                expect[k] = lambda val, n=needle: isinstance(val, str) and n in val.lower()
+                expect[k] = lambda val, n=needle: _contains(val, n)
             else:
                 expect[k] = v
         assertions.append(

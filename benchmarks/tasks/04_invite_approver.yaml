@@ -1,0 +1,19 @@
+task_id: "04_invite_approver"
+title: Invite the right approver
+prompt: Invite the right approver to the Redwood launch review
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - approver is the VP of Product
+expected_writes:
+  - app: gcal
+    action: create_event
+    expect:
+      attendees:
+        contains: vp-product
+    description: invite the known approver
+max_writes: 1
+why_memory: >
+  The project has a known signing chain whose approver is the VP of Product. The
+  snapshot does not reveal informal ownership, so the agent needs the compiled
+  project memory to invite the right person and not skip a reviewer.

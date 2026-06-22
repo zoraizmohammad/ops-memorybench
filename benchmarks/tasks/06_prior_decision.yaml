@@ -1,0 +1,19 @@
+task_id: "06_prior_decision"
+title: Find the prior decision on feature scope
+prompt: What was the prior decision on the Redwood feature scope
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - scope is frozen
+expected_writes:
+  - app: slack
+    action: post_message
+    expect:
+      text:
+        contains: prior decision
+    description: cite the prior decision rather than reopen it
+max_writes: 1
+why_memory: >
+  The decision that scope is frozen lives in an older trajectory or notes. The current
+  app state may not foreground it, so without compiled memory the agent risks
+  reopening a settled question instead of citing the prior decision.

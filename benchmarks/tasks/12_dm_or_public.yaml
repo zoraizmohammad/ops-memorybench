@@ -1,0 +1,18 @@
+task_id: "12_dm_or_public"
+title: Decide whether to DM or post publicly
+prompt: Reply to Bob about the sensitive performance review
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - prefers direct messages
+expected_writes:
+  - app: slack
+    action: send_dm
+    expect:
+      user: U_BOB
+    description: choose a direct message for the sensitive topic
+max_writes: 1
+why_memory: >
+  The person specific communication preference to handle sensitive topics by direct
+  message is not in the snapshot. Without the compiled interpersonal norm the agent
+  would choose the wrong modality and post publicly.

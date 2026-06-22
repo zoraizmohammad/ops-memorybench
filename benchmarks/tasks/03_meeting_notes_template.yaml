@@ -1,0 +1,19 @@
+task_id: "03_meeting_notes_template"
+title: Draft meeting notes into the team template
+prompt: Draft meeting notes for the Redwood sync into a new doc
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - section order
+expected_writes:
+  - app: gdocs
+    action: create_document
+    expect:
+      body:
+        contains: Action Items
+    description: create notes using the team template section order
+max_writes: 1
+why_memory: >
+  The team uses a standard section order for meeting notes. The snapshot has many
+  documents but does not encode which template to follow, so the agent must rely on
+  the compiled procedural memory to lay the notes out correctly.

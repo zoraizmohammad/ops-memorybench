@@ -1,0 +1,18 @@
+task_id: "05_name_document"
+title: Name a new customer doc correctly
+prompt: Create a document for our customer Acme
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - customer docs are named
+expected_writes:
+  - app: gdocs
+    action: create_document
+    expect:
+      name:
+        contains: Customer Acme
+    description: name the doc per the customer naming convention
+max_writes: 1
+why_memory: >
+  The team has a naming convention for customer documents. Document state alone lacks
+  the rule, so the file name must come from the compiled convention to match exactly.

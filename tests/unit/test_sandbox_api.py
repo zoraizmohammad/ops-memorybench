@@ -49,10 +49,12 @@ def test_slack_list_channels(router):
 def test_slack_post_resolves_channel_name_to_id(router):
     result, refs = router.execute("slack.post_message", {"channel": "announcements", "text": "Launch is live"})
     assert result["ok"]
-    # The channel name was resolved to its id and recorded as a write.
+    # The channel name resolves to its id in the ref, while the write records both
+    # the named intent and the resolved id.
     assert refs[0].entity_id == "C_ANNOUNCE"
     writes = router.sandbox.writes_for("slack")
-    assert writes[0].payload["channel"] == "C_ANNOUNCE"
+    assert writes[0].payload["channel"] == "announcements"
+    assert writes[0].payload["channel_id"] == "C_ANNOUNCE"
 
 
 def test_gcal_get_event(router):

@@ -1,0 +1,91 @@
+# Curated knowledge base seed for the benchmark.
+#
+# These are the durable memory items a team would have compiled from history. The
+# backtest mounts them for the with-memory condition. Each item is the kind of
+# durable context that is not reliably inferable from the current app snapshot, which
+# is what makes the paired tasks fair tests of memory.
+items:
+  - type: semantic
+    namespace: user
+    subject: user
+    claim: The user prefers afternoons and avoids Fridays for meetings
+    confidence: 0.9
+    acl: personal
+  - type: semantic
+    namespace: team
+    subject: team-norms
+    claim: We announce launches in the announcements channel using the format Launch name is live
+    confidence: 0.85
+    acl: team
+  - type: procedural
+    namespace: team
+    subject: team-norms
+    claim: Meeting notes follow a standard section order Attendees Agenda Decisions Action Items
+    confidence: 0.8
+    acl: team
+  - type: semantic
+    namespace: project
+    subject: redwood
+    claim: The Redwood approver is the VP of Product
+    confidence: 0.8
+    acl: project
+  - type: semantic
+    namespace: team
+    subject: team-norms
+    claim: Customer docs are named Customer Name and date
+    confidence: 0.75
+    acl: team
+  - type: semantic
+    namespace: project
+    subject: redwood
+    claim: The prior decision is that Redwood scope is frozen and should not reopen
+    confidence: 0.8
+    acl: project
+  - type: semantic
+    namespace: user
+    subject: contacts
+    claim: VIP Alice prefers direct messages and is high priority for a personal reply
+    confidence: 0.85
+    acl: personal
+  - type: semantic
+    namespace: user
+    subject: user
+    claim: The user prefers United airline and an aisle seat for travel
+    confidence: 0.85
+    acl: personal
+  - type: semantic
+    namespace: team
+    subject: team-norms
+    claim: External calls are scheduled at 10am Pacific or later to respect partner time zones
+    confidence: 0.8
+    acl: team
+  - type: procedural
+    namespace: team
+    subject: team-norms
+    claim: Weekly summaries are metric first with Metrics then Highlights then Risks
+    confidence: 0.8
+    acl: team
+  - type: semantic
+    namespace: team
+    subject: team-norms
+    claim: Bugs go to the engineering channel per the routing taxonomy
+    confidence: 0.8
+    acl: team
+  - type: semantic
+    namespace: user
+    subject: contacts
+    claim: Bob prefers direct messages for sensitive performance topics
+    confidence: 0.8
+    acl: personal
+  - type: semantic
+    namespace: project
+    subject: redwood
+    claim: The canonical Redwood overview document is the source of truth and has id doc_redwood_overview
+    confidence: 0.85
+    acl: project
+  - type: procedural
+    namespace: team
+    subject: team-norms
+    claim: Optional attendees decline conflicting meetings by standing rule
+    confidence: 0.8
+    acl: team

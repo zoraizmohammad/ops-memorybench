@@ -1,0 +1,18 @@
+task_id: "11_route_request"
+title: Route a request to the right channel
+prompt: Route this bug report to the right Slack channel
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - bugs go to
+expected_writes:
+  - app: slack
+    action: post_message
+    expect:
+      channel: engineering
+    description: route to the channel the taxonomy specifies
+max_writes: 1
+why_memory: >
+  The historical channel taxonomy maps bug reports to the engineering channel. The
+  channel list alone is ambiguous, so correct routing with minimal noise depends on
+  the compiled taxonomy.

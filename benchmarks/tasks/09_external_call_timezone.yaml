@@ -1,0 +1,18 @@
+task_id: "09_external_call_timezone"
+title: Schedule an external call respecting time zones
+prompt: Schedule an external call with the Globex team
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - 10am pacific
+expected_writes:
+  - app: gcal
+    action: create_event
+    expect:
+      start: "10:00"
+    description: pick a time respecting the known region constraint
+max_writes: 1
+why_memory: >
+  The team avoids scheduling external calls before 10am Pacific to respect partner
+  time zones. Open calendar slots alone do not encode this, so the agent must rely on
+  the compiled norm to pick an acceptable time.

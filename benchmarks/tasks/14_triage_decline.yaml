@@ -1,0 +1,18 @@
+task_id: "14_triage_decline"
+title: Triage a meeting decline by standing rule
+prompt: Should I decline this optional meeting invite
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - optional attendees
+expected_writes:
+  - app: gcal
+    action: respond_event
+    expect:
+      response: declined
+    description: decline per the standing rule for optional attendees
+max_writes: 1
+why_memory: >
+  There is a known standing rule that optional attendees decline conflicting meetings.
+  Calendar state alone lacks the policy, so the correct accept or decline behavior
+  depends on the compiled rule.

@@ -1,0 +1,19 @@
+task_id: "10_weekly_summary"
+title: Prepare a weekly summary in the team format
+prompt: Prepare the weekly summary for the Redwood team
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - metric first
+expected_writes:
+  - app: gdocs
+    action: create_document
+    expect:
+      body:
+        contains: Metrics
+    description: lay the summary out metrics first per the team norm
+max_writes: 1
+why_memory: >
+  The team prefers a metric first reporting format. The underlying Slack and Docs
+  content exists, but the reporting norm does not, so the summary layout must come
+  from the compiled team memory.

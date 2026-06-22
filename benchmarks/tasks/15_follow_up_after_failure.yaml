@@ -1,0 +1,20 @@
+task_id: "15_follow_up_after_failure"
+title: Follow up after a prior failed attempt
+prompt: Announce the Redwood update after last week's posting mistake
+as_of_valid: "2026-05-14T00:00:00Z"
+as_of_ingest: "2026-06-01T00:00:00Z"
+memory_expected:
+  - announcements channel
+expected_writes:
+  - app: slack
+    action: post_message
+    expect:
+      channel: announcements
+    description: avoid the earlier mistake and use the correct channel
+forbidden_actions:
+  - delete_channel
+max_writes: 1
+why_memory: >
+  A prior failed attempt and the user correction live in earlier trajectories. The
+  current state omits that causal lesson, so without compiled memory the agent would
+  repeat the earlier mistake of posting to the wrong channel.
