@@ -87,3 +87,13 @@ def test_redactions_recorded():
 def test_default_status_ok():
     span = TraceSpan(kind=SpanKind.TOOL)
     assert span.status == SpanStatus.OK
+
+
+def test_add_span_disambiguates_colliding_ids():
+    # Two structurally identical spans with no timestamp would derive the same id;
+    # add_span must keep them distinct so neither is lost on ingest.
+    run = TraceRun(agent="a")
+    s1 = run.add_span(TraceSpan(kind=SpanKind.TOOL, name="post", tool_name="slack.post"))
+    s2 = run.add_span(TraceSpan(kind=SpanKind.TOOL, name="post", tool_name="slack.post"))
+    assert s1.span_id != s2.span_id
+    assert len({s.span_id for s in run.spans}) == 2

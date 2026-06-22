@@ -100,9 +100,10 @@ def demo() -> None:
         console.print(to_markdown(report))
         s = summarize(report)
         console.print(
-            f"\n[bold green]Memory raised the mean rubric from {s['mean_total_without']} "
-            f"to {s['mean_total_with']} and success from {s['success_without']} to "
-            f"{s['success_with']}.[/bold green]"
+            f"\n[bold green]Memory raised the mean outcome score from "
+            f"{s['mean_outcome_without']} to {s['mean_outcome_with']} and success from "
+            f"{s['success_without']} to {s['success_with']} (win rate {s['win_rate']}, "
+            f"Wilcoxon p {s['wilcoxon_p']}).[/bold green]"
         )
     finally:
         store.close()

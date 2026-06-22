@@ -101,3 +101,45 @@ def test_list_runs_filtered_by_agent(ingestor):
     ingestor.ingest(TraceRun(agent="codex", started_at=t(0), task_ref="b"))
     assert len(ingestor.list_runs(agent="claude_code")) == 1
     assert len(ingestor.list_runs()) == 2
+
+
+def test_richer_trajectory_replaces_thinner(ingestor):
+    # A thin run (hook log) ingested first, then a richer run (transcript) with the
+    # same trace id should replace it rather than being discarded.
+    thin = TraceRun(trace_id="trace_fixed", agent="claude_code", started_at=t(0))
+    thin.add_span(TraceSpan(kind=SpanKind.USER, input="do the thing", started_at=t(0)))
+    ingestor.ingest(thin)
+    assert len(ingestor.load("trace_fixed").spans) == 1
+
+    rich = TraceRun(trace_id="trace_fixed", agent="claude_code", started_at=t(0))
+    rich.add_span(TraceSpan(kind=SpanKind.USER, input="do the thing", started_at=t(0)))
+    rich.add_span(TraceSpan(kind=SpanKind.TOOL, tool_name="slack.post", started_at=t(1)))
+    rich.add_span(TraceSpan(kind=SpanKind.LLM, output="done", started_at=t(2)))
+    ingestor.ingest(rich)
+    reloaded = ingestor.load("trace_fixed")
+    assert len(reloaded.spans) == 3
+    # The thin version's spans are gone, not duplicated.
+    rows = ingestor.store.backend.query("SELECT COUNT(*) AS c FROM trace_spans WHERE trace_id = 'trace_fixed'")
+    assert rows[0]["c"] == 3
+
+
+def test_thinner_trajectory_does_not_replace_richer(ingestor):
+    rich = TraceRun(trace_id="trace_fixed2", agent="claude_code", started_at=t(0))
+    rich.add_span(TraceSpan(kind=SpanKind.USER, input="x", started_at=t(0)))
+    rich.add_span(TraceSpan(kind=SpanKind.TOOL, tool_name="slack.post", started_at=t(1)))
+    ingestor.ingest(rich)
+    thin = TraceRun(trace_id="trace_fixed2", agent="claude_code", started_at=t(0))
+    thin.add_span(TraceSpan(kind=SpanKind.USER, input="x", started_at=t(0)))
+    ingestor.ingest(thin)
+    # The richer version is retained.
+    assert len(ingestor.load("trace_fixed2").spans) == 2
+
+
+def test_redactions_recorded_on_span(ingestor):
+    run = TraceRun(agent="claude_code", started_at=t(0))
+    run.add_span(TraceSpan(kind=SpanKind.TOOL, tool_name="slack.post", started_at=t(0),
+                           input={"text": "email me at carol@x.com"}))
+    trace_id = ingestor.ingest(run)
+    loaded = ingestor.load(trace_id)
+    tool = loaded.spans_of(SpanKind.TOOL)[0]
+    assert "email" in tool.redactions

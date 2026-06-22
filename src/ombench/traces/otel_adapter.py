@@ -124,11 +124,11 @@ def from_otel_spans(
         attrs = dict(raw.get("attributes", {}))
         kind = _resolve_kind(attrs)
         app_refs = _resolve_app_refs(attrs)
-        status = (
-            SpanStatus.OK
-            if str(raw.get("status_code", "OK")).upper() == "OK"
-            else SpanStatus.ERROR
-        )
+        status = {
+            "OK": SpanStatus.OK,
+            "ERROR": SpanStatus.ERROR,
+            "UNSET": SpanStatus.UNSET,
+        }.get(str(raw.get("status_code", "OK")).upper(), SpanStatus.ERROR)
         tokens = attrs.get("llm.token_count.total")
         span = TraceSpan(
             span_id=raw.get("span_id", ""),
@@ -138,9 +138,10 @@ def from_otel_spans(
             started_at=from_iso(raw["start_time"]) if raw.get("start_time") else None,
             ended_at=from_iso(raw["end_time"]) if raw.get("end_time") else None,
             status=status,
-            input=attrs.get("input.value"),
-            output=attrs.get("output.value"),
+            input=_decode_value(attrs.get("input.value")),
+            output=_decode_value(attrs.get("output.value")),
             tool_name=attrs.get("tool.name"),
+            tool_args=_decode_args(attrs.get("tool.parameters")),
             model=attrs.get("llm.model_name"),
             tokens=int(tokens) if tokens is not None else None,
             cost_usd=attrs.get("ombench.cost_usd"),
@@ -153,6 +154,36 @@ def from_otel_spans(
         )
         run.add_span(span)
     return run
+
+
+def _decode_value(value: Any) -> Any:
+    """Best effort decode of an input or output value back to structure.
+
+    Exports render structured payloads as canonical JSON strings; on import they are
+    decoded back to objects when they parse as JSON, and left as plain strings
+    otherwise, so structured inputs and outputs round trip faithfully.
+    """
+    if not isinstance(value, str):
+        return value
+    import json
+
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return value
+
+
+def _decode_args(raw: Any) -> dict[str, Any] | None:
+    """Decode the tool.parameters attribute back into the tool argument mapping."""
+    if not isinstance(raw, str):
+        return None
+    import json
+
+    try:
+        parsed = json.loads(raw)
+    except (TypeError, ValueError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
 
 
 def _resolve_kind(attrs: dict[str, Any]) -> SpanKind:

@@ -42,11 +42,36 @@ class RubricScores:
 
     @property
     def total(self) -> float:
+        """The full four axis weighted score, for the diagnostic per task table.
+
+        This is NOT the basis of the paired delta. The two memory axes are zero for
+        the without memory condition by experimental construction (it retrieves
+        nothing), so a delta computed on this total would be inflated regardless of
+        whether memory changed what the agent did. Use :attr:`outcome_score` for the
+        paired comparison; this stays as a complete diagnostic view.
+        """
         return round(
             self.task_outcome * self.weights["task_outcome"]
             + self.memory_retrieval * self.weights["memory_retrieval"]
             + self.memory_application * self.weights["memory_application"]
             + self.action_validity * self.weights["action_validity"],
+            4,
+        )
+
+    @property
+    def outcome_score(self) -> float:
+        """The outcome grounded score used for the paired backtest comparison.
+
+        Only the two axes that measure agent performance, task outcome and action
+        validity, renormalized to 0..1. This is fair to compare across conditions
+        because neither axis is structurally pinned by whether memory was mounted, so
+        any delta reflects a real change in what the agent did, not the experiment
+        setup. The memory retrieval and application axes remain diagnostic.
+        """
+        w = self.weights["task_outcome"] + self.weights["action_validity"]
+        return round(
+            (self.task_outcome * self.weights["task_outcome"]
+             + self.action_validity * self.weights["action_validity"]) / w,
             4,
         )
 
@@ -62,6 +87,7 @@ class RubricScores:
             "memory_application": self.memory_application,
             "action_validity": self.action_validity,
             "total": self.total,
+            "outcome_score": self.outcome_score,
             "success": 1.0 if self.success else 0.0,
         }
 
@@ -79,7 +105,13 @@ def retrieval_scores(retrieved_claims: list[str], expected_substrings: list[str]
     subs = [s.lower() for s in expected_substrings]
 
     relevant = sum(1 for c in lowered if any(s in c for s in subs))
-    precision = relevant / len(lowered) if lowered else 0.0
     covered = sum(1 for s in subs if any(s in c for c in lowered))
     recall = covered / len(subs)
+    # Precision is the fraction of relevant items among the retrieved items that
+    # could plausibly be relevant, capped by the number of expected items. Dividing
+    # by the full retrieved set would pin precision at relevant/top_k regardless of
+    # retrieval quality, since a fixed top_k bundle always carries extra context.
+    denom = min(len(lowered), len(subs)) if lowered else 0
+    precision = relevant / denom if denom else 0.0
+    precision = min(1.0, precision)
     return (round(precision, 4), round(recall, 4))

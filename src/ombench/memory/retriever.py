@@ -194,8 +194,10 @@ class MemoryRetriever:
     def _freshness(self, item: MemoryItem) -> float:
         ref = item.valid_at or item.created_at
         age_days = (utcnow() - ref).total_seconds() / 86400.0
-        # Smoothly decays from 1 toward 0 over about a year.
-        return max(0.0, 1.0 - age_days / 365.0)
+        # Smoothly decays from 1 toward 0 over about a year. Clamped on both ends:
+        # a future dated item (valid_at ahead of now, common for calendar events)
+        # would otherwise score above 1.0 and over weight in the rerank.
+        return max(0.0, min(1.0, 1.0 - age_days / 365.0))
 
     def _pack(self, ranked: list[RetrievedMemory], top_k: int, token_budget: int) -> MemoryBundle:
         bundle = MemoryBundle()

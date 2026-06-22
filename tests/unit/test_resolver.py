@@ -120,3 +120,21 @@ def test_provenance_retained_after_resolution(mstore):
     # The superseded item still exists, just inactive.
     assert mstore.get(a.memory_id) is not None
     assert len(mstore.all_items()) == 2
+
+
+def test_resolve_all_multiway_contradiction_keeps_one_active(mstore):
+    # Three claims about the same topic with high token overlap and clear polarity:
+    # one positive and two negated forms that all contradict the positive. Only the
+    # highest confidence one should remain active after resolution, and a later pair
+    # must not re-activate an item a stronger one already superseded.
+    a = _item("Prefers morning meetings always", conf=0.9, day=3)
+    b = _item("Prefers morning meetings never", conf=0.5, day=2)
+    c = _item("Prefers morning meetings not", conf=0.3, day=1)
+    for it in (a, b, c):
+        mstore.add(it)
+    resolve_all(mstore)
+    active = [i for i in mstore.all_items(active_only=True)
+              if "morning" in i.claim.lower()]
+    # Exactly one morning claim stays active, and it is the strongest.
+    assert len(active) == 1
+    assert active[0].memory_id == a.memory_id

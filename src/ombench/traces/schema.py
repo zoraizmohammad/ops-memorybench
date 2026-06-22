@@ -191,6 +191,21 @@ class TraceRun(BaseModel):
     # -- convenience ------------------------------------------------------
 
     def add_span(self, span: TraceSpan) -> TraceSpan:
+        """Append a span, disambiguating its id if it collides within this run.
+
+        Span ids are content derived, so two genuinely distinct spans that share the
+        same shape and have no timestamp (for example two identical tool calls in one
+        turn) would otherwise collapse to one id and one would be silently lost on
+        ingest. When a collision is detected the new span's id is salted with its
+        position so both are retained, while a re run of the same trajectory still
+        produces the same ids.
+        """
+        existing = {s.span_id for s in self.spans}
+        if span.span_id in existing:
+            from ..ids import short_hash
+
+            salted = f"{span.span_id}_{len(self.spans)}"
+            object.__setattr__(span, "span_id", f"span_{short_hash(salted, 16)}")
         self.spans.append(span)
         return span
 

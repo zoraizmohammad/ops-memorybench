@@ -109,6 +109,14 @@ class Redactor:
                 return {k: walk(v, k) for k, v in node.items()}
             if isinstance(node, (list, tuple)):
                 return [walk(v) for v in node]
+            # Numeric scalars can carry sensitive values too (a card or phone number
+            # stored as an int), so scan their string form. Booleans are excluded
+            # because bool is an int subclass and never sensitive.
+            if isinstance(node, (int, float)) and not isinstance(node, bool):
+                cleaned, found = self.redact_text(str(node))
+                if found:
+                    hits.update(found)
+                    return cleaned
             return node
 
         redacted = walk(value)

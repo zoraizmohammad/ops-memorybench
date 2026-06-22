@@ -57,7 +57,22 @@ class TaskResult:
     with_memory: ConditionResult
 
     @property
+    def outcome_delta(self) -> float:
+        """The paired delta on the outcome grounded score.
+
+        This is the headline metric: it compares task outcome and action validity,
+        the axes that reflect what the agent actually did, and excludes the two
+        memory axes that are zero for the without memory condition by construction.
+        A positive outcome delta means memory changed the agent's behavior for the
+        better, not merely that memory was mounted.
+        """
+        return round(
+            self.with_memory.scores.outcome_score - self.without_memory.scores.outcome_score, 4
+        )
+
+    @property
     def total_delta(self) -> float:
+        """The full four axis delta, diagnostic only. See outcome_delta for the headline."""
         return round(self.with_memory.scores.total - self.without_memory.scores.total, 4)
 
 
@@ -68,12 +83,18 @@ class BacktestReport:
     results: list[TaskResult] = field(default_factory=list)
 
     def deltas(self) -> list[float]:
+        """Paired outcome grounded deltas, the basis of the headline statistics."""
+        return [r.outcome_delta for r in self.results]
+
+    def total_deltas(self) -> list[float]:
+        """Paired full four axis deltas, for the diagnostic per task view."""
         return [r.total_delta for r in self.results]
 
     def win_rate(self) -> float:
+        """Fraction of tasks where memory improved the outcome grounded score."""
         if not self.results:
             return 0.0
-        wins = sum(1 for r in self.results if r.total_delta > 0)
+        wins = sum(1 for r in self.results if r.outcome_delta > 0)
         return round(wins / len(self.results), 4)
 
 

@@ -41,9 +41,18 @@ def test_retrieval_recall_miss():
 
 def test_retrieval_precision_with_noise():
     p, r = retrieval_scores(["prefers afternoons", "noise one", "noise two"], ["prefers afternoons"])
-    # One of three retrieved is relevant (rounded to 4 decimals).
-    assert abs(p - 1 / 3) < 1e-3
+    # Precision is over the relevant denominator (min of retrieved and expected),
+    # not the full top_k bundle, so finding the one expected item scores 1.0 rather
+    # than being pinned at 1/3 by the extra context the retriever always carries.
+    assert p == 1.0
     assert r == 1.0
+
+
+def test_retrieval_precision_partial():
+    # Two expected, only one retrieved among two items: precision 1/2, recall 1/2.
+    p, r = retrieval_scores(["prefers afternoons", "noise"], ["prefers afternoons", "avoids fridays"])
+    assert p == 0.5
+    assert r == 0.5
 
 
 def test_retrieval_vacuous_when_no_expectation():

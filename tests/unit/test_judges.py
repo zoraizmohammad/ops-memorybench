@@ -101,8 +101,13 @@ def test_contains_predicate_matches():
 def test_parse_score():
     assert _parse_score("0.8") == 0.8
     assert _parse_score("The score is 1.0 overall") == 1.0
-    assert _parse_score("clamp 5") == 1.0
+    # Out of range bare integers are rejected rather than clamped, so a stray 5 is
+    # not misread as a perfect score.
+    assert _parse_score("clamp 5") is None
     assert _parse_score("no number here") is None
+    # An explicit out of 10 phrasing is normalized.
+    assert _parse_score("8/10") == 0.8
+    assert _parse_score("7 out of 10") == 0.7
 
 
 def test_anthropic_judge_refines_application():

@@ -67,18 +67,34 @@ class ResolutionResult:
     relation: EdgeRelation
 
 
-def resolve_pair(store: MemoryStore, a: MemoryItem, b: MemoryItem) -> ResolutionResult:
+def resolve_pair(
+    store: MemoryStore,
+    a: MemoryItem,
+    b: MemoryItem,
+    *,
+    inactivated: set[str] | None = None,
+) -> ResolutionResult:
     """Resolve a contradicting pair, recording an edge and the active view.
 
     The winner is the higher confidence item; ties go to the more recent one, then
     to the more privileged acl. The loser is marked inactive and a ``supersedes``
     edge points from winner to loser.
+
+    ``inactivated`` is an optional set of memory ids already superseded earlier in
+    the same resolution sweep. The winner is only re activated if it has not itself
+    already been superseded, which prevents a later pair from flipping a globally
+    superseded item back to active in a multi way contradiction.
     """
     winner, loser = _rank(a, b)
     store.add_edge(winner.memory_id, loser.memory_id, EdgeRelation.SUPERSEDES)
     store.add_edge(loser.memory_id, winner.memory_id, EdgeRelation.CONTRADICTS)
     store.set_active(loser.memory_id, False)
-    store.set_active(winner.memory_id, True)
+    if inactivated is not None:
+        inactivated.add(loser.memory_id)
+        if winner.memory_id not in inactivated:
+            store.set_active(winner.memory_id, True)
+    else:
+        store.set_active(winner.memory_id, True)
     return ResolutionResult(
         active_id=winner.memory_id,
         inactivated=[loser.memory_id],
@@ -116,9 +132,19 @@ def resolve_all(store: MemoryStore) -> list[ResolutionResult]:
     for item in items:
         groups.setdefault((item.namespace.value, item.subject or ""), []).append(item)
 
+    # Resolve highest confidence pairs first so that in a multi way contradiction the
+    # strongest claim wins, and track inactivated ids across the whole sweep so a
+    # later pair cannot re activate an item a stronger one already superseded.
+    inactivated: set[str] = set()
     for group in groups.values():
-        for i in range(len(group)):
-            for j in range(i + 1, len(group)):
-                if contradicts(group[i], group[j]):
-                    results.append(resolve_pair(store, group[i], group[j]))
+        ranked = sorted(group, key=lambda it: (-it.confidence, it.created_at, it.memory_id))
+        for i in range(len(ranked)):
+            for j in range(i + 1, len(ranked)):
+                a, b = ranked[i], ranked[j]
+                if a.memory_id in inactivated:
+                    break  # a is already superseded; its remaining pairs are moot
+                if b.memory_id in inactivated:
+                    continue
+                if contradicts(a, b):
+                    results.append(resolve_pair(store, a, b, inactivated=inactivated))
     return results

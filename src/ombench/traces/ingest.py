@@ -26,19 +26,35 @@ class TrajectoryIngestor:
         self.redactor = redactor or Redactor()
 
     def ingest(self, run: TraceRun) -> str:
-        """Ingest one run. Returns its ``trace_id``. Idempotent."""
+        """Ingest one run. Returns its ``trace_id``.
+
+        Idempotent on equal or thinner content, and content aware on richer content:
+        if a run already exists for this trace id and the incoming run has more
+        spans, it replaces the stored one. This matters because the same session can
+        be finalized from two sources, the incremental hook log and the full
+        transcript, and the richer transcript should win regardless of which arrives
+        first rather than being discarded.
+        """
         backend = self.store.backend
         existing = backend.query_one(
             "SELECT trace_id FROM trace_runs WHERE trace_id = ?", (run.trace_id,)
         )
         if existing:
-            return run.trace_id
-
-        # Store the full redacted trajectory document as a single blob for replay.
-        redacted_doc, _ = self.redactor.redact(run.model_dump(mode="json"))
-        payload_hash = self.store.blobs.put_json(redacted_doc)
+            stored = backend.query_one(
+                "SELECT COUNT(*) AS c FROM trace_spans WHERE trace_id = ?", (run.trace_id,)
+            )
+            stored_spans = int(stored["c"]) if stored else 0
+            if len(run.spans) <= stored_spans:
+                return run.trace_id
+            # The incoming run is richer; remove the thinner stored version first.
+            self._delete_run(run.trace_id)
 
         with backend.transaction():
+            # Insert the run row first so the span foreign key is satisfied, then
+            # persist spans (which populates each span's redactions list via the
+            # offload step), then store the trajectory document built from the
+            # updated spans so the reconstructed document reflects redaction, and
+            # finally point the run row at that document blob.
             backend.insert(
                 "trace_runs",
                 {
@@ -51,13 +67,38 @@ class TrajectoryIngestor:
                     "user_ref": run.user_ref,
                     "task_ref": run.task_ref,
                     "status": run.status.value,
-                    "payload_hash": payload_hash,
+                    "payload_hash": None,
                     "ingested_at": to_iso(utcnow()),
                 },
             )
             for span in run.spans:
                 self._persist_span(run.trace_id, span)
+            redacted_doc, _ = self.redactor.redact(run.model_dump(mode="json"))
+            payload_hash = self.store.blobs.put_json(redacted_doc)
+            backend.execute(
+                "UPDATE trace_runs SET payload_hash = ? WHERE trace_id = ?",
+                (payload_hash, run.trace_id),
+            )
         return run.trace_id
+
+    def _delete_run(self, trace_id: str) -> None:
+        """Remove a stored run and its spans so a richer version can replace it.
+
+        Blobs are left in the content addressed store; they are immutable and
+        deduplicated, so orphaned blobs are harmless and a future garbage collection
+        sweep can reclaim them.
+        """
+        backend = self.store.backend
+        with backend.transaction():
+            span_rows = backend.query(
+                "SELECT span_id FROM trace_spans WHERE trace_id = ?", (trace_id,)
+            )
+            for row in span_rows:
+                backend.execute(
+                    "DELETE FROM span_app_refs WHERE span_id = ?", (row["span_id"],)
+                )
+            backend.execute("DELETE FROM trace_spans WHERE trace_id = ?", (trace_id,))
+            backend.execute("DELETE FROM trace_runs WHERE trace_id = ?", (trace_id,))
 
     def _persist_span(self, trace_id: str, span: TraceSpan) -> None:
         backend = self.store.backend
@@ -66,10 +107,20 @@ class TrajectoryIngestor:
         ):
             return
 
-        input_ref = self._offload(span.input) if span.input is not None else span.input_ref
-        output_ref = (
-            self._offload(span.output) if span.output is not None else span.output_ref
-        )
+        redaction_hits: set[str] = set(span.redactions)
+        if span.input is not None:
+            input_ref, hits = self._offload(span.input)
+            redaction_hits |= hits
+        else:
+            input_ref = span.input_ref
+        if span.output is not None:
+            output_ref, hits = self._offload(span.output)
+            redaction_hits |= hits
+        else:
+            output_ref = span.output_ref
+        # Record what redaction removed on the span so the privacy posture of the
+        # stored span is auditable, which is the whole point of capturing it.
+        object.__setattr__(span, "redactions", sorted(redaction_hits))
         attributes_hash = (
             self.store.blobs.put_json(span.attributes) if span.attributes else None
         )
@@ -104,15 +155,16 @@ class TrajectoryIngestor:
                 },
             )
 
-    def _offload(self, value: object) -> str:
-        """Redact then store a span payload, returning its blob reference.
+    def _offload(self, value: object) -> tuple[str, set[str]]:
+        """Redact then store a span payload, returning its blob reference and hits.
 
         Every payload is content addressed so identical inputs across spans
         deduplicate to one blob. Redaction happens here so nothing sensitive ever
-        reaches the blob store unscrubbed.
+        reaches the blob store unscrubbed, and the set of rule names that fired is
+        returned so the caller can record it on the span.
         """
-        redacted, _ = self.redactor.redact(value)
-        return self.store.blobs.put_json(redacted)
+        redacted, hits = self.redactor.redact(value)
+        return self.store.blobs.put_json(redacted), hits
 
     # -- read back --------------------------------------------------------
 

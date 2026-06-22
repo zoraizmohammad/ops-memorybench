@@ -16,8 +16,17 @@ from .stats import bootstrap_mean_ci, cohens_kappa, wilcoxon_signed_rank, win_ra
 
 
 def summarize(report: BacktestReport) -> dict[str, Any]:
-    """Compute the headline metrics and statistics for a backtest report."""
-    deltas = report.deltas()
+    """Compute the headline metrics and statistics for a backtest report.
+
+    The headline delta, win rate, and significance test are computed on the outcome
+    grounded score (task outcome and action validity), which is fair to compare
+    across the with and without memory conditions. The full four axis totals are
+    also reported as a diagnostic, but they are not the basis of the comparison
+    because the two memory axes are zero for the without condition by construction.
+    """
+    deltas = report.deltas()  # outcome grounded
+    with_outcome = [r.with_memory.scores.outcome_score for r in report.results]
+    without_outcome = [r.without_memory.scores.outcome_score for r in report.results]
     with_totals = [r.with_memory.scores.total for r in report.results]
     without_totals = [r.without_memory.scores.total for r in report.results]
 
@@ -30,6 +39,8 @@ def summarize(report: BacktestReport) -> dict[str, Any]:
 
     return {
         "n_tasks": len(report.results),
+        "mean_outcome_with": mean(with_outcome),
+        "mean_outcome_without": mean(without_outcome),
         "mean_total_with": mean(with_totals),
         "mean_total_without": mean(without_totals),
         "mean_delta": delta_ci.estimate,
@@ -56,7 +67,7 @@ def to_markdown(report: BacktestReport) -> str:
     lines.append("| metric | without memory | with memory | delta |")
     lines.append("|---|---|---|---|")
     lines.append(
-        f"| mean rubric total | {s['mean_total_without']} | {s['mean_total_with']} | "
+        f"| mean outcome score | {s['mean_outcome_without']} | {s['mean_outcome_with']} | "
         f"{s['mean_delta']} |"
     )
     lines.append(
@@ -65,14 +76,19 @@ def to_markdown(report: BacktestReport) -> str:
     )
     lines.append("")
     lines.append(
-        f"Mean delta 95% CI [{s['delta_ci'][0]}, {s['delta_ci'][1]}]; "
+        "The outcome score (task outcome and action validity) is the basis of the "
+        "comparison. The four axis rubric total is diagnostic only, because its two "
+        "memory axes are zero for the without memory condition by construction."
+    )
+    lines.append(
+        f"Mean outcome delta 95% CI [{s['delta_ci'][0]}, {s['delta_ci'][1]}]; "
         f"win rate {s['win_rate']} (CI [{s['win_rate_ci'][0]}, {s['win_rate_ci'][1]}]); "
         f"Wilcoxon p {s['wilcoxon_p']} ({s['wilcoxon_method']})."
     )
     lines.append("")
     lines.append("## Per task")
     lines.append("")
-    lines.append("| task | outcome w/o | outcome w/ | retrieval w/ | application w/ | validity w/ | total delta |")
+    lines.append("| task | outcome w/o | outcome w/ | retrieval w/ | application w/ | validity w/ | outcome delta |")
     lines.append("|---|---|---|---|---|---|---|")
     for r in report.results:
         wo = r.without_memory.scores
@@ -80,7 +96,7 @@ def to_markdown(report: BacktestReport) -> str:
         lines.append(
             f"| {r.task_id} | {wo.task_outcome} | {wm.task_outcome} | "
             f"{wm.memory_retrieval} | {wm.memory_application} | {wm.action_validity} | "
-            f"{r.total_delta} |"
+            f"{r.outcome_delta} |"
         )
     lines.append("")
     return "\n".join(lines)

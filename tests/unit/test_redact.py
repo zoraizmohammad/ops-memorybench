@@ -62,3 +62,18 @@ def test_non_string_values_pass_through():
     redacted, hits = r.redact({"count": 42, "flag": True, "nothing": None})
     assert redacted == {"count": 42, "flag": True, "nothing": None}
     assert hits == set()
+
+
+def test_redacts_numeric_card_value():
+    # A card-like number stored as an int should be redacted, not slip through.
+    r = Redactor()
+    redacted, hits = r.redact({"card": 4111111111111111})
+    assert redacted["card"] == "[REDACTED_CARD]"
+    assert "credit_card" in hits
+
+
+def test_booleans_not_redacted():
+    r = Redactor()
+    redacted, hits = r.redact({"flag": True, "count": 3})
+    assert redacted["flag"] is True
+    assert redacted["count"] == 3

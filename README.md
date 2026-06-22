@@ -66,11 +66,18 @@ knowledge base mounted versus not:
 
 | metric | without memory | with memory | delta |
 |---|---|---|---|
-| mean rubric total | 0.227 | 0.867 | **+0.64** |
+| mean outcome score | 0.378 | 1.0 | **+0.62** |
 | success rate | 6.7% | 100% | **+93 points** |
 
-Win rate 1.0 (bootstrap CI [1.0, 1.0]); paired Wilcoxon p = 0.0007. Every task improves
-with the right memory mounted and none regress. Reproduce it with `make demo`.
+Win rate 0.93 (bootstrap CI [0.8, 1.0]); paired Wilcoxon p = 0.0002. Fourteen of the
+fifteen tasks improve with the right memory mounted and none regress; the one neutral
+task is a prior decision lookup the agent answers correctly either way.
+
+The headline compares the **outcome grounded score** (task outcome and action
+validity), not the full four axis rubric total, because the two memory axes are zero
+for the without memory condition by experimental construction and would inflate the
+delta. The four axis total is reported per task as a diagnostic. Reproduce it all with
+`make demo`.
 
 ## Quick start
 

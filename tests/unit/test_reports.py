@@ -42,7 +42,7 @@ def test_markdown_contains_table():
     assert "without memory" in md
     assert "with memory" in md
     assert "t1" in md
-    assert "total delta" in md
+    assert "outcome delta" in md
 
 
 def test_empty_report():

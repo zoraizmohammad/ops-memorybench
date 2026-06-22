@@ -25,7 +25,7 @@ def test_demo_runs_end_to_end(tmp_path, monkeypatch):
 
     result = runner.invoke(app, ["demo"])
     assert result.exit_code == 0, result.output
-    assert "Memory raised the mean rubric" in result.output
+    assert "Memory raised the mean outcome score" in result.output
     # The without memory mean is below the with memory mean in the output table.
     assert "with memory" in result.output
 

@@ -13,7 +13,14 @@ For each `TaskSpec`:
 3. Retrieve the compiled knowledge base for the task prompt.
 4. Run the agent against the sandbox **without** memory mounted.
 5. Run the agent again against the same seeded sandbox **with** memory mounted.
-6. Score both runs on the same rubric and report the paired delta.
+6. Score both runs on the same rubric and report the paired delta on the outcome
+   grounded score.
+
+The paired delta, win rate, and significance test are computed on the **outcome
+grounded score** (task outcome and action validity), not the full four axis total.
+The two memory axes are zero for the without memory condition by construction (it
+retrieves nothing), so a delta on the total would be inflated regardless of agent
+behavior. The four axis total stays as a per task diagnostic.
 
 Task, snapshot, and sandbox are held deterministic across the two conditions, so the
 only difference is whether the knowledge base is mounted. With the deterministic stub

@@ -56,3 +56,14 @@ def test_deterministic_across_runs():
         return [wrapped("t", {})[0] for _ in range(3)]
 
     assert run() == run()
+
+
+def test_tool_none_fault_fires_on_nth_overall_call():
+    # A fault with tool=None and on_call=2 should fire on the 2nd overall call,
+    # regardless of which tools were called.
+    inj = FaultInjector(faults=[Fault(tool=None, on_call=2, kind="error")])
+    wrapped = inj.wrap(base_executor)
+    first, _ = wrapped("alpha", {})
+    assert first["ok"]  # first overall call is clean
+    second, _ = wrapped("beta", {})
+    assert second["error"] == "tool_failed"  # second overall call faults

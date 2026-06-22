@@ -40,6 +40,7 @@ class FaultInjector:
 
     faults: list[Fault] = field(default_factory=list)
     _counts: dict[str, int] = field(default_factory=dict)
+    _total: int = 0
 
     def wrap(
         self, executor: Callable[[str, dict[str, Any]], tuple[Any, list[AppRef]]]
@@ -48,15 +49,19 @@ class FaultInjector:
 
         def wrapped(name: str, args: dict[str, Any]):
             self._counts[name] = self._counts.get(name, 0) + 1
-            fault = self._match(name, self._counts[name])
+            self._total += 1
+            fault = self._match(name, self._counts[name], self._total)
             if fault is not None:
                 return self._apply(fault, name), []
             return executor(name, args)
 
         return wrapped
 
-    def _match(self, name: str, count: int) -> Fault | None:
+    def _match(self, name: str, per_tool_count: int, total_count: int) -> Fault | None:
+        # A fault targeting a specific tool matches on that tool's own call index; a
+        # tool=None fault matches on the overall call index across all tools.
         for fault in self.faults:
+            count = per_tool_count if fault.tool == name else total_count
             if (fault.tool is None or fault.tool == name) and fault.on_call == count:
                 return fault
         return None
@@ -71,10 +76,10 @@ class FaultInjector:
         return {"error": "tool_failed", "tool": name}
 
     def triggered(self) -> int:
-        """How many distinct faults could fire given the calls seen so far."""
+        """How many configured faults have had their trigger point reached."""
         return sum(
             1
             for f in self.faults
-            if self._counts.get(f.tool or "", 0) >= f.on_call
-            or (f.tool is None and any(c >= f.on_call for c in self._counts.values()))
+            if (f.tool is not None and self._counts.get(f.tool, 0) >= f.on_call)
+            or (f.tool is None and self._total >= f.on_call)
         )

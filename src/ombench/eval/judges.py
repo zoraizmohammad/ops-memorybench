@@ -66,8 +66,9 @@ def _build_assertions(task: TaskSpec) -> list[StateAssertion]:
                 forbidden_actions=task.forbidden_actions, description=ew.description or ew.action,
             )
         )
-    if not assertions and task.forbidden_actions:
-        assertions.append(StateAssertion(forbidden_actions=task.forbidden_actions))
+    # A forbidden only task has no positive write to assert; the forbidden check is
+    # handled on the action validity axis, not as a write made assertion, so no bare
+    # assertion is added here (adding one would spuriously match any write).
     return assertions
 
 
@@ -111,13 +112,14 @@ class RuleBasedJudge(Judge):
         precision, recall = retrieval_scores(artifacts.retrieved_claims, task.memory_expected)
         scores.memory_retrieval = _f1(precision, recall)
 
-        # Memory application: did the achieved outcome reflect the expected memory.
-        # If the outcome is correct and the expected memory was retrieved, the agent
-        # applied it; if the outcome is wrong, application is zero.
-        if not task.memory_expected:
-            scores.memory_application = scores.task_outcome
-        else:
-            scores.memory_application = scores.task_outcome if recall > 0 else 0.0
+        # Memory application: did the action actually reflect the expected memory.
+        # This is measured from the achieved outcome, not from whether memory was
+        # retrieved: an outcome that satisfies the expected write demonstrates the
+        # expected memory was applied regardless of which condition produced it. The
+        # earlier recall>0 gate was wrong because the without memory condition has
+        # recall 0 by construction, which conflated "did not apply" with "had no
+        # memory to apply".
+        scores.memory_application = scores.task_outcome
         return scores
 
 
@@ -172,8 +174,20 @@ class AnthropicJudge(Judge):
 
 
 def _parse_score(text: str) -> float | None:
+    """Parse a 0..1 score from judge text.
+
+    Normalizes an explicit X out of 10 or X/10 phrasing, and rejects anything
+    outside 0..1 rather than clamping, so a stray "8" from an out of 10 answer is
+    not silently read as a perfect 1.0.
+    """
     import re
 
+    over10 = re.search(r"(\d+(?:\.\d+)?)\s*(?:/\s*10|out of 10)", text, re.IGNORECASE)
+    if over10:
+        try:
+            return max(0.0, min(1.0, float(over10.group(1)) / 10.0))
+        except ValueError:
+            return None
     m = re.search(r"(\d?\.\d+|\d)", text)
     if not m:
         return None
@@ -181,4 +195,4 @@ def _parse_score(text: str) -> float | None:
         value = float(m.group(1))
     except ValueError:
         return None
-    return max(0.0, min(1.0, value))
+    return value if 0.0 <= value <= 1.0 else None

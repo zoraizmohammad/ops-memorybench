@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ombench.timeutil import UTC
 from ombench.traces.otel_adapter import from_otel_spans, to_otel_spans
-from ombench.traces.schema import AppRef, SpanKind, TraceRun, TraceSpan
+from ombench.traces.schema import AppRef, SpanKind, SpanStatus, TraceRun, TraceSpan
 
 
 def t(minute: int) -> datetime:
@@ -101,3 +101,22 @@ def test_extra_attributes_are_preserved():
     imported = from_otel_spans(to_otel_spans(run))
     assert imported.spans[0].attributes["graph.node.id"] == "planner_0"
     assert imported.spans[0].attributes["custom.flag"] is True
+
+
+def test_unset_status_round_trips():
+    run = TraceRun(agent="a", started_at=t(0))
+    run.add_span(TraceSpan(kind=SpanKind.AGENT, name="root", started_at=t(0),
+                           status=SpanStatus.UNSET))
+    imported = from_otel_spans(to_otel_spans(run))
+    assert imported.spans[0].status == SpanStatus.UNSET
+
+
+def test_structured_input_and_tool_args_round_trip():
+    run = TraceRun(agent="a", started_at=t(0))
+    run.add_span(TraceSpan(kind=SpanKind.TOOL, name="t", tool_name="slack.post",
+                           tool_args={"channel": "C1", "n": 3},
+                           input={"channel": "C1"}, started_at=t(0)))
+    imported = from_otel_spans(to_otel_spans(run))
+    span = imported.spans_of(SpanKind.TOOL)[0]
+    assert span.input == {"channel": "C1"}
+    assert span.tool_args == {"channel": "C1", "n": 3}

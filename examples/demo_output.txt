@@ -8,33 +8,36 @@ Tasks evaluated: 15
 
 | metric | without memory | with memory | delta |
 |---|---|---|---|
-| mean rubric total | 0.2267 | 0.8667 | 0.64 |
+| mean outcome score | 0.3777 | 1.0 | 0.6223 |
 | success rate | 0.0667 | 1.0 | 0.9333 |
 
-Mean delta 95% CI [0.5867, 0.6667]; win rate 1.0 (CI [1.0, 1.0]); Wilcoxon p 
-0.0007 (normal_approx).
+The outcome score (task outcome and action validity) is the basis of the 
+comparison. The four axis rubric total is diagnostic only, because its two 
+memory axes are zero for the without memory condition by construction.
+Mean outcome delta 95% CI [0.5334, 0.6667]; win rate 0.9333 (CI [0.8, 1.0]); 
+Wilcoxon p 0.00018281063298183483 (scipy).
 
 ## Per task
 
 | task | outcome w/o | outcome w/ | retrieval w/ | application w/ | validity w/ 
-| total delta |
+| outcome delta |
 |---|---|---|---|---|---|---|
-| 01_reschedule_1on1 | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 02_announce_launch | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 03_meeting_notes_template | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 04_invite_approver | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 05_name_document | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 06_prior_decision | 1.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.2667 |
-| 07_vip_contact | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 08_travel_itinerary | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 09_external_call_timezone | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 10_weekly_summary | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 11_route_request | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 12_dm_or_public | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 13_update_project_page | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 14_triage_decline | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
-| 15_follow_up_after_failure | 0.0 | 1.0 | 0.3333 | 1.0 | 1.0 | 0.6667 |
+| 01_reschedule_1on1 | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 02_announce_launch | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 03_meeting_notes_template | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 04_invite_approver | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 05_name_document | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 06_prior_decision | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.0 |
+| 07_vip_contact | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 08_travel_itinerary | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 09_external_call_timezone | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 10_weekly_summary | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 11_route_request | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 12_dm_or_public | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 13_update_project_page | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 14_triage_decline | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
+| 15_follow_up_after_failure | 0.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.6667 |
 
 
-Memory raised the mean rubric from 0.2267 to 0.8667 and success from 0.0667 to 
-1.0.
+Memory raised the mean outcome score from 0.3777 to 1.0 and success from 0.0667 
+to 1.0 (win rate 0.9333, Wilcoxon p 0.00018281063298183483).
