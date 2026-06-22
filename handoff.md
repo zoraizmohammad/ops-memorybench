@@ -4,9 +4,12 @@ Living status for the build. Update this after every commit. Read this plus `pla
 
 ## Current state
 
-- Phase: 0 (Foundation and scaffold) — starting
-- Last commit: none yet for the build (only the initial repo commit `5356165`)
+- Phase: 2 (Trajectory capture) — starting
+- Last commit: 97da9db Fix import ordering in events package init
+- Phase 0 complete: scaffold, pyproject, config/ids/timeutil/logging, CI, Makefile, README, CLI
+- Phase 1 complete: blob store (content addressed), storage backend + SQLite + migrations, AppEvent algebra, bitemporal EventStore with fold materialization, query helpers. 86 tests passing total.
 - Branch: main
+- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing.
 - Remote: https://github.com/zoraizmohammad/ops-memorybench.git
 - Author identity confirmed: Mohammad Zoraiz <zoraizmohammad@gmail.com>
 
@@ -36,8 +39,8 @@ None required. All optional and additive:
 
 See `plan.md` section 6 for the full commit list. Mark each here as it lands.
 
-- [ ] Phase 0 Foundation
-- [ ] Phase 1 Event store and blob store
+- [x] Phase 0 Foundation
+- [x] Phase 1 Event store and blob store
 - [ ] Phase 2 Trajectory capture
 - [ ] Phase 3 Snapshots and integrations
 - [ ] Phase 4 Memory compiler and retrieval
