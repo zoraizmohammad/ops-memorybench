@@ -4,10 +4,12 @@ Living status for the build. Update this after every commit. Read this plus `pla
 
 ## Current state
 
-- Phase: 2 (Trajectory capture) — starting
-- Last commit: 97da9db Fix import ordering in events package init
+- Phase: 3 (Snapshots and integrations) — starting
+- Last commit: 818ebc4 Add Claude Code plugin hook capture entrypoint and docs
 - Phase 0 complete: scaffold, pyproject, config/ids/timeutil/logging, CI, Makefile, README, CLI
-- Phase 1 complete: blob store (content addressed), storage backend + SQLite + migrations, AppEvent algebra, bitemporal EventStore with fold materialization, query helpers. 86 tests passing total.
+- Phase 1 complete: blob store, storage backend + SQLite + migrations, AppEvent algebra, bitemporal EventStore with fold, query helpers
+- Phase 2 complete (Task 1): trajectory schema, redaction, ingest, OTel/OpenInference adapter, Claude Code + Codex converters, Claude Code plugin hook capture, omb trace CLI. Verified end to end.
+- 132 tests passing total.
 - Branch: main
 - Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing.
 - Remote: https://github.com/zoraizmohammad/ops-memorybench.git
@@ -41,7 +43,7 @@ See `plan.md` section 6 for the full commit list. Mark each here as it lands.
 
 - [x] Phase 0 Foundation
 - [x] Phase 1 Event store and blob store
-- [ ] Phase 2 Trajectory capture
+- [x] Phase 2 Trajectory capture
 - [ ] Phase 3 Snapshots and integrations
 - [ ] Phase 4 Memory compiler and retrieval
 - [ ] Phase 5 LLM layer and agent
