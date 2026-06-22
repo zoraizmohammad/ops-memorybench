@@ -69,7 +69,9 @@ knowledge base mounted versus not:
 | mean outcome score | 0.378 | 1.0 | **+0.62** |
 | success rate | 6.7% | 100% | **+93 points** |
 
-Win rate 0.93 (bootstrap CI [0.8, 1.0]); paired Wilcoxon p = 0.0002. Fourteen of the
+Win rate 0.93 (bootstrap CI [0.8, 1.0]); paired Wilcoxon p around 0.001 (the keyless
+default uses a pure Python normal approximation; with SciPy installed it is 0.0002).
+Fourteen of the
 fifteen tasks improve with the right memory mounted and none regress; the one neutral
 task is a prior decision lookup the agent answers correctly either way.
 
