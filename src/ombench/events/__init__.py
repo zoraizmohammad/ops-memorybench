@@ -8,6 +8,7 @@ The canonical append only bitemporal event log. :mod:`schema` defines the cross 
 from __future__ import annotations
 
 from . import algebra
+from .queries import HistoryEntry, entity_history, list_entities, stats, timeline
 from .schema import (
     DELETE_OPS,
     EDGE_OPS,
@@ -16,7 +17,6 @@ from .schema import (
     AppEvent,
     Op,
 )
-from .queries import HistoryEntry, entity_history, list_entities, stats, timeline
 from .store import EntityState, EventStore
 
 __all__ = [
