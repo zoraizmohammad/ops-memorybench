@@ -1,0 +1,24 @@
+{
+  "id": "codex_sess_announce_1",
+  "items": [
+    {
+      "type": "message",
+      "role": "user",
+      "timestamp": "2026-05-15T16:00:00.000Z",
+      "content": "Announce the Redwood launch in the right Slack channel"
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "timestamp": "2026-05-15T16:00:04.000Z",
+      "content": "I will post the announcement to the launch channel."
+    },
+    {
+      "type": "function_call",
+      "name": "slack.post_message",
+      "timestamp": "2026-05-15T16:00:06.000Z",
+      "arguments": "{\"channel\": \"C_launch_redwood\", \"text\": \"Redwood is live\"}",
+      "output": "{\"ok\": true, \"ts\": \"1747324806.000200\"}"
+    }
+  ]
+}
