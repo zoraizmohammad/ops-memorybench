@@ -107,11 +107,13 @@ class StorageBackend(ABC):
                 continue
             from ..timeutil import to_iso, utcnow
 
-            with self.transaction():
-                self.executescript(path.read_text(encoding="utf-8"))
-                self.execute(
-                    "INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)",
-                    (path.name, to_iso(utcnow())),
-                )
+            # Migration DDL is written with IF NOT EXISTS, and executescript manages
+            # its own commit, so it runs outside a transaction() block. The applied
+            # marker is recorded immediately after, keeping the runner idempotent.
+            self.executescript(path.read_text(encoding="utf-8"))
+            self.execute(
+                "INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)",
+                (path.name, to_iso(utcnow())),
+            )
             newly.append(path.name)
         return newly

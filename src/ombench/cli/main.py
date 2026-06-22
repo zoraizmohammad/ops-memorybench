@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ombench import __version__
-from ombench.cli import tracecmds
+from ombench.cli import synccmds, tracecmds
 from ombench.config import load_config
 
 app = typer.Typer(
@@ -22,6 +22,8 @@ app = typer.Typer(
     add_completion=False,
 )
 app.add_typer(tracecmds.app, name="trace")
+app.add_typer(synccmds.sync_app, name="sync")
+app.add_typer(synccmds.snapshot_app, name="snapshot")
 
 console = Console()
 

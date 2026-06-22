@@ -103,7 +103,7 @@ CREATE INDEX IF NOT EXISTS idx_span_app_refs ON span_app_refs (app, entity_type,
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS snapshot_manifests (
     snapshot_id        TEXT PRIMARY KEY,
-    app                TEXT NOT NULL,
+    app                TEXT,                    -- null means a cross app snapshot
     as_of_valid_time   TEXT NOT NULL,
     as_of_ingest_time  TEXT NOT NULL,
     root_hash          TEXT NOT NULL,           -- merkle root over entity version hashes

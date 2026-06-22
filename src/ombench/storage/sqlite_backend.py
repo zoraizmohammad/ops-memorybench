@@ -42,7 +42,14 @@ class SQLiteBackend(StorageBackend):
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         # check_same_thread is relaxed because the worker may touch the
         # connection from a helper thread; access is otherwise serialized.
-        self._conn = sqlite3.connect(self.path, check_same_thread=False)
+        #
+        # isolation_level=None puts the driver in autocommit mode. Without this,
+        # sqlite3 implicitly opens a transaction on the first DML statement and
+        # never commits it unless told to, which silently loses single statement
+        # writes across process boundaries. With autocommit, statements outside an
+        # explicit transaction() block commit immediately, and transaction() drives
+        # BEGIN and COMMIT itself.
+        self._conn = sqlite3.connect(self.path, check_same_thread=False, isolation_level=None)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA foreign_keys = ON")
         self._conn.execute("PRAGMA journal_mode = WAL")
@@ -63,19 +70,19 @@ class SQLiteBackend(StorageBackend):
     # -- execution --------------------------------------------------------
 
     def execute(self, sql: str, params: Params = ()) -> None:
+        # In autocommit mode a statement outside a transaction() block commits
+        # immediately; inside one it joins the open transaction.
         self.conn.execute(self.translate(sql), tuple(params))
-        if not self.conn.in_transaction:
-            self.conn.commit()
 
     def executemany(self, sql: str, seq_params: Sequence[Params]) -> None:
         self.conn.executemany(self.translate(sql), [tuple(p) for p in seq_params])
-        if not self.conn.in_transaction:
-            self.conn.commit()
 
     def executescript(self, script: str) -> None:
+        # sqlite3.executescript commits any pending transaction before running, so
+        # it is used only outside transaction() blocks (the migration runner calls
+        # it directly). The schema is written with IF NOT EXISTS so re running is
+        # safe even if a later step fails.
         self.conn.executescript(script)
-        if not self.conn.in_transaction:
-            self.conn.commit()
 
     def query(self, sql: str, params: Params = ()) -> list[Row]:
         cur = self.conn.execute(self.translate(sql), tuple(params))
@@ -90,16 +97,20 @@ class SQLiteBackend(StorageBackend):
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
-        """Wrap a unit of work. Commits on success, rolls back on exception."""
+        """Wrap a unit of work. Commits on success, rolls back on exception.
+
+        Nested calls are flattened: only the outermost block drives BEGIN and
+        COMMIT, so helpers that open their own transaction compose safely.
+        """
         conn = self.conn
-        # Use an explicit BEGIN so executescript inside the block participates.
         already = conn.in_transaction
         if not already:
             conn.execute("BEGIN")
         try:
             yield
         except Exception:
-            conn.rollback()
+            if not already:
+                conn.rollback()
             raise
         else:
             if not already:
