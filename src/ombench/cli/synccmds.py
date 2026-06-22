@@ -14,9 +14,7 @@ from rich.table import Table
 from ..config import load_config
 from ..events.queries import stats as event_stats
 from ..events.store import EventStore
-from ..integrations.gcal.sync import GCalSync
-from ..integrations.gdocs.sync import GDocsSync
-from ..integrations.slack.sync import SlackSync
+from ..integrations.registry import DEFAULT_APPS, build_integration
 from ..snapshots import SnapshotMaterializer, diff_snapshots
 from ..storage import open_store
 from ..timeutil import from_iso
@@ -25,32 +23,18 @@ sync_app = typer.Typer(help="Sync SaaS state into the event log.", no_args_is_he
 snapshot_app = typer.Typer(help="Materialize and inspect snapshots.", no_args_is_help=True)
 console = Console()
 
-_INTEGRATIONS = {"slack": SlackSync, "gcal": GCalSync, "gdocs": GDocsSync}
-_FIXTURE_FILES = {
-    "slack": ("slack", "workspace.json"),
-    "gcal": ("gcal", "calendar.json"),
-    "gdocs": ("gdocs", "docs.json"),
-}
-
-
-def _build_integration(name: str, store, config):
-    cls = _INTEGRATIONS[name]
-    sub, fname = _FIXTURE_FILES[name]
-    fixtures_path = config.fixtures_dir / sub / fname
-    return cls(EventStore(store.backend, store.blobs), fixtures_path=fixtures_path)
-
 
 @sync_app.command("run")
 def sync_run(
-    app: str = typer.Argument("all", help="all | slack | gcal | gdocs"),
+    app: str = typer.Argument("all", help="all | slack | gcal | gdocs | gmail"),
 ) -> None:
     """Run a sync for one app or all apps from fixtures or live credentials."""
     config = load_config()
     store = open_store(config)
     try:
-        names = list(_INTEGRATIONS) if app == "all" else [app]
+        names = list(DEFAULT_APPS) if app == "all" else [app]
         for name in names:
-            integ = _build_integration(name, store, config)
+            integ = build_integration(name, store, config)
             result = integ.run_sync()
             mode = "live" if integ.is_live else "fixtures"
             console.print(

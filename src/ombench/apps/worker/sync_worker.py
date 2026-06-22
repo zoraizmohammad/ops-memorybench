@@ -15,33 +15,25 @@ from __future__ import annotations
 import time
 
 from ...config import Config, load_config
-from ...events.store import EventStore
-from ...integrations.gcal.sync import GCalSync
-from ...integrations.gdocs.sync import GDocsSync
-from ...integrations.slack.sync import SlackSync
+from ...integrations.registry import DEFAULT_APPS, build_integration
 from ...logging import get_logger
 from ...storage import open_store
 
 log = get_logger("worker")
 
 
-def _build_integrations(store, config: Config):
-    es = EventStore(store.backend, store.blobs)
-    fx = config.fixtures_dir
-    return [
-        SlackSync(es, fixtures_path=fx / "slack" / "workspace.json"),
-        GCalSync(es, fixtures_path=fx / "gcal" / "calendar.json"),
-        GDocsSync(es, fixtures_path=fx / "gdocs" / "docs.json"),
-    ]
-
-
 def run_once(config: Config | None = None) -> dict[str, int]:
-    """Run one sync cycle over all integrations. Returns new events per app."""
+    """Run one sync cycle over all registered integrations. Returns new events per app.
+
+    Draws the app list from the shared integration registry, so a newly registered
+    app is synced by the worker automatically with no change here.
+    """
     config = config or load_config()
     store = open_store(config)
     try:
         results: dict[str, int] = {}
-        for integ in _build_integrations(store, config):
+        for name in DEFAULT_APPS:
+            integ = build_integration(name, store, config)
             result = integ.run_sync()
             results[integ.app.value] = result.events_new
         return results

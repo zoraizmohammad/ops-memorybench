@@ -20,6 +20,7 @@ MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 
 __all__ = [
     "BlobStore",
+    "PostgresBackend",
     "Row",
     "SQLiteBackend",
     "StorageBackend",
@@ -29,6 +30,15 @@ __all__ = [
     "open_store",
     "parse_blob_uri",
 ]
+
+
+def __getattr__(name: str):
+    # Lazy export so importing ombench.storage never imports psycopg.
+    if name == "PostgresBackend":
+        from .postgres_backend import PostgresBackend
+
+        return PostgresBackend
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class Store:
@@ -49,11 +59,20 @@ class Store:
 def open_store(config: Config, *, migrate: bool = True) -> Store:
     """Open the relational backend and blob store for a config and migrate.
 
-    The local first default is SQLite plus a filesystem blob store. Swapping in a
-    Postgres backend later means changing only this function.
+    The local first default is SQLite plus a filesystem blob store. Setting
+    ``database_url`` (env ``OMBENCH_DATABASE_URL``) to a Postgres DSN selects the
+    production backend behind the same interface; nothing above this function
+    changes. The blob store stays filesystem based, which an object store backed
+    BlobStore would replace in a full production deployment.
     """
     config.ensure_dirs()
-    backend = SQLiteBackend(config.db_path)
+    backend: StorageBackend
+    if config.database_url:
+        from .postgres_backend import PostgresBackend
+
+        backend = PostgresBackend(config.database_url)
+    else:
+        backend = SQLiteBackend(config.db_path)
     backend.connect()
     if migrate:
         backend.migrate(MIGRATIONS_DIR)

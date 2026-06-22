@@ -41,6 +41,7 @@ google = [
     "google-auth-oauthlib>=1.1",
 ]
 slack = ["slack-sdk>=3.23"]
+postgres = ["psycopg[binary]>=3.1"]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -59,6 +60,7 @@ all = [
     "google-auth>=2.23",
     "google-auth-oauthlib>=1.1",
     "slack-sdk>=3.23",
+    "psycopg[binary]>=3.1",
 ]
 
 [project.scripts]

@@ -80,6 +80,9 @@ class Config:
     llm: LLMConfig = field(default_factory=LLMConfig)
     slack: SlackConfig = field(default_factory=SlackConfig)
     google: GoogleConfig = field(default_factory=GoogleConfig)
+    # Relational backend selection. Empty means the local first SQLite default; a
+    # Postgres DSN selects the production backend behind the same interface.
+    database_url: str = ""
 
     @property
     def db_path(self) -> Path:
@@ -133,4 +136,7 @@ def load_config(*, env_file: str | os.PathLike[str] | None = ".env") -> Config:
         credentials_file=_env("GOOGLE_CREDENTIALS_FILE"),
         token_file=_env("GOOGLE_TOKEN_FILE"),
     )
-    return Config(home=home, llm=llm, slack=slack, google=google)
+    return Config(
+        home=home, llm=llm, slack=slack, google=google,
+        database_url=_env("OMBENCH_DATABASE_URL"),
+    )
