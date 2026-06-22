@@ -1,0 +1,41 @@
+# Optional production stack.
+#
+# ombench runs fully local first on SQLite plus a filesystem blob store, so this
+# compose file is NOT required to run the platform, the tests, or the demo. It is the
+# documented path for the production swap described in the writeup: a Postgres backend
+# with pgvector behind the StorageBackend interface, and an object store for blobs.
+#
+# To use it, bring up the services, set the connection env vars, and implement a
+# PostgresBackend(StorageBackend) plus an S3 style BlobStore. The domain layers do not
+# change because they depend only on the interfaces.
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ombench
+      POSTGRES_PASSWORD: ombench
+      POSTGRES_DB: ombench
+    ports:
+      - "5432:5432"
+    volumes:
+      - ombench_pg:/var/lib/postgresql/data
+
+  # Object storage for content addressed blobs in a production deployment. The
+  # filesystem BlobStore is the local first default; MinIO is the S3 compatible swap.
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ombench
+      MINIO_ROOT_PASSWORD: ombenchsecret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ombench_blobs:/data
+
+volumes:
+  ombench_pg:
+  ombench_blobs:

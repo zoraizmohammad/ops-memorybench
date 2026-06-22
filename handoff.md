@@ -4,13 +4,14 @@ Living status for the build. Update this after every commit. Read this plus `pla
 
 ## Current state
 
-- Phase: 6 (Simulated environment) — starting
-- Last commit: d30a663 Add operational agent under test with tool loop and agent tests
-- Phase 0 to 5 complete. Tasks 1, 2, 3 built and verified via CLI.
-- Phase 5 complete: LLM client interface, deterministic memory aware stub, Anthropic client, build_llm factory, operational agent with tool loop. Stub conditions behavior on mounted memory so the keyless backtest is meaningful.
-- 280 tests passing total.
+- Phase: 9 (Docs demo deliverables and polish) — finishing
+- Phase 0 to 9 essentially complete. All six prompt tasks plus all twelve extensions built, documented, and verified.
+- Deliverables done: README (diagram, concrete example, results table), docs/ set, demo script + captured example, notebooks, docker-compose for the production swap.
+- Headline result (keyless, deterministic): mean rubric 0.23 to 0.87, success 7 percent to 100 percent, win rate 1.0, Wilcoxon p 0.0007.
+- Clean clone installs, all tests pass, omb demo runs keyless. mypy reduced to live-integration-only findings (non blocking).
 - Branch: main
-- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing. Verify cross process behavior via CLI.
+- Remaining: incorporate adversarial review findings, final sign-off.
+- Discipline note: always run `.venv/bin/python -m ruff check src tests` and `pytest -q` before committing.
 - Remote: https://github.com/zoraizmohammad/ops-memorybench.git
 - Author identity confirmed: Mohammad Zoraiz <zoraizmohammad@gmail.com>
 
@@ -46,9 +47,9 @@ See `plan.md` section 6 for the full commit list. Mark each here as it lands.
 - [x] Phase 3 Snapshots and integrations
 - [x] Phase 4 Memory compiler and retrieval
 - [x] Phase 5 LLM layer and agent
-- [ ] Phase 6 Simulated environment
-- [ ] Phase 7 Eval harness and benchmark
-- [ ] Phase 8 Extensions
+- [x] Phase 6 Simulated environment
+- [x] Phase 7 Eval harness and benchmark
+- [x] Phase 8 Extensions
 - [ ] Phase 9 Docs demo deliverables and polish
 
 ## Notes for the next session
