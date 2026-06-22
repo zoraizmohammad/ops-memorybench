@@ -16,6 +16,7 @@ from .schema import (
     AppEvent,
     Op,
 )
+from .queries import HistoryEntry, entity_history, list_entities, stats, timeline
 from .store import EntityState, EventStore
 
 __all__ = [
@@ -26,6 +27,11 @@ __all__ = [
     "AppEvent",
     "EntityState",
     "EventStore",
+    "HistoryEntry",
     "Op",
     "algebra",
+    "entity_history",
+    "list_entities",
+    "stats",
+    "timeline",
 ]
