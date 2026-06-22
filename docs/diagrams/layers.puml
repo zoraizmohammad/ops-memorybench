@@ -1,0 +1,73 @@
+@startuml layers
+' Package layering: each layer depends only on the ones below it.
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam package {
+  BackgroundColor #F4F1EA
+  BorderColor #555555
+}
+
+title ombench package layers (dependencies point downward)
+
+package "cli + apps (operator surface)" as cli {
+  [omb trace/sync/snapshot/memory/eval/saasgit/viz]
+  [sync_worker]
+  [replay_runner]
+}
+
+package "eval (Tasks 4 + 6)" as eval {
+  [tasks] [rubrics] [judges] [runner] [stats] [reports] [miner] [seed]
+}
+
+package "replay (Task 5)" as replay {
+  [sandbox] [sandbox_api] [validators] [faults]
+}
+
+package "memory (Task 3)" as memory {
+  [compiler] [retriever] [scorer] [resolver] [kb] [bootstrap]
+}
+
+package "llm" as llm {
+  [base] [stub] [anthropic_client] [agent]
+}
+
+package "integrations (Task 2 sources)" as integ {
+  [base] [registry] [slack] [gcal] [gdocs] [gmail]
+}
+
+package "snapshots (Task 2)" as snapshots {
+  [materialize] [manifest] [diff]
+}
+
+package "events (history substrate)" as events {
+  [schema/algebra] [store] [queries]
+}
+
+package "traces (Task 1)" as traces {
+  [schema] [ingest] [redact] [converters] [hook] [otel_adapter]
+}
+
+package "storage" as storage {
+  [StorageBackend] [SQLiteBackend] [PostgresBackend] [BlobStore]
+}
+
+cli --> eval
+cli --> replay
+cli --> memory
+cli --> integ
+cli --> snapshots
+eval --> replay
+eval --> memory
+eval --> llm
+replay --> llm
+replay --> snapshots
+memory --> events
+llm --> traces
+integ --> events
+snapshots --> events
+traces --> storage
+events --> storage
+
+@enduml

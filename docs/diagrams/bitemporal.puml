@@ -1,0 +1,30 @@
+@startuml bitemporal
+' Why two time axes prevent backtest leakage.
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+
+title Bitemporal reconstruction: S(T, tau) = fold(S0, { e | valid_at(e) <= T and ingested_at(e) <= tau })
+
+participant "Backtest" as bt
+participant "EventStore.materialize" as es
+database "Event log" as log
+
+note over log
+  e1  valid_at=May 1   ingested_at=May 1   "start 09:00"
+  e2  valid_at=May 1   ingested_at=May 9   "late backfill"   <- arrived late
+  e3  valid_at=May 20  ingested_at=May 20  "start 15:00"     <- the reschedule
+end note
+
+bt -> es : materialize(as_of_valid=May 14, as_of_ingest=May 14)
+es -> log : fold events where valid_at <= May 14 AND ingested_at <= May 14
+log --> es : e1 only\n(e2 excluded: not yet ingested by May 14)\n(e3 excluded: valid_at after May 14)
+es --> bt : state.start = 09:00\n(honest: no leakage of the late backfill or the future reschedule)
+
+note right of bt
+  A single event time would have leaked e2,
+  inflating what the agent appeared to know.
+  The ingest axis is what makes the backtest fair.
+end note
+
+@enduml

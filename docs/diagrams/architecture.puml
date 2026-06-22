@@ -1,0 +1,48 @@
+@startuml architecture
+' High level data flow of the ombench platform, from capture to measurement.
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam rectangle {
+  BackgroundColor #F4F1EA
+  BorderColor #555555
+}
+skinparam ArrowColor #555555
+skinparam shadowing false
+
+title ombench: capture, history, compile, replay, measure
+
+rectangle "Claude Code / Codex\nagent" as agent
+rectangle "Slack / Calendar / Docs\nsync jobs" as sync
+rectangle "Trajectory ingestor\n(traces)" as traj
+rectangle "Canonical app events\n(events.algebra)" as appev
+
+rectangle "Append only\nbitemporal event log\nS(T, tau) = fold(...)" as log #D7E8D7
+rectangle "Content addressed\nblob store (SHA-256)" as blobs #D7E8D7
+
+rectangle "Snapshot materializer\n(merkle root)" as snap
+rectangle "Memory compiler\n(KB filesystem)" as kb
+rectangle "Hybrid retriever\n(BM25 + dense + RRF)" as ret
+
+rectangle "Replay sandbox\n(frozen clock, seeded)" as sandbox
+rectangle "Operational agent\nunder test" as uat
+
+rectangle "Run WITHOUT memory" as without #FADBD8
+rectangle "Run WITH memory" as withm #D5F5E3
+rectangle "Rubric + judge + stats\n(paired backtest)" as eval #E8DAEF
+
+agent --> traj
+sync --> appev
+traj --> log
+appev --> log
+log --> blobs
+log --> snap
+log --> kb
+kb --> ret
+snap --> sandbox
+ret --> withm
+sandbox --> without
+sandbox --> withm
+without --> eval
+withm --> eval
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml backtest
+' The paired with vs without memory backtest, per task.
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F4F1EA
+  BorderColor #555555
+}
+skinparam ArrowColor #555555
+
+title Paired backtest for one task
+
+start
+:Load TaskSpec\n(prompt, snapshot coords, expected memory, rubric);
+:Materialize snapshot at (T, tau)\nfrom the bitemporal event log;
+:Retrieve compiled KB for the prompt;
+
+fork
+  :Seed sandbox from snapshot;
+  :Run agent WITHOUT memory mounted;
+  :Score on four axis rubric;
+fork again
+  :Seed SAME sandbox from snapshot;
+  :Run agent WITH memory mounted;
+  :Score on four axis rubric;
+end fork
+
+:Compute paired outcome delta\n(task outcome + action validity);
+:Aggregate across tasks\n(bootstrap CI, Wilcoxon, win rate);
+stop
+
+@enduml
