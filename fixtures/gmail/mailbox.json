@@ -1,0 +1,15 @@
+{
+  "historyId": "987654",
+  "messages": [
+    {
+      "id": "msg_vip_1",
+      "threadId": "thread_vip",
+      "internalDate": "1715700000000",
+      "from": "vip@bigcustomer.com",
+      "to": "alice@acme.com",
+      "subject": "Quarterly review follow up",
+      "snippet": "Thanks for the call, looking forward to next steps",
+      "labelIds": ["INBOX", "IMPORTANT"]
+    }
+  ]
+}
