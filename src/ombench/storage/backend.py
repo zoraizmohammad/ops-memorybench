@@ -85,6 +85,23 @@ class StorageBackend(ABC):
         """Context manager wrapping a unit of work in a transaction."""
         raise NotImplementedError
 
+    # -- convenience ------------------------------------------------------
+
+    def insert(self, table: str, values: dict[str, Any], *, replace: bool = False) -> None:
+        """Insert a row from a column to value mapping.
+
+        Expressed in terms of :meth:`execute` so every backend gets it for free.
+        When ``replace`` is true an existing row with the same primary key is
+        overwritten, used for idempotent index upserts. The ``INSERT OR REPLACE``
+        form is SQLite syntax; a Postgres backend would override this to use
+        ``INSERT ... ON CONFLICT ... DO UPDATE``.
+        """
+        cols = list(values.keys())
+        placeholders = ", ".join("?" for _ in cols)
+        verb = "INSERT OR REPLACE" if replace else "INSERT"
+        sql = f"{verb} INTO {table} ({', '.join(cols)}) VALUES ({placeholders})"
+        self.execute(sql, [values[c] for c in cols])
+
     # -- migrations -------------------------------------------------------
 
     def migrate(self, migrations_dir: str | Path) -> list[str]:

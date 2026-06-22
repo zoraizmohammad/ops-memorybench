@@ -32,8 +32,8 @@ def compile_cmd(
     store = open_store(config)
     try:
         ingestor = TrajectoryIngestor(store)
-        runs = [ingestor.load(r["trace_id"]) for r in ingestor.list_runs()]
-        runs = [r for r in runs if r is not None]
+        loaded = [ingestor.load(r["trace_id"]) for r in ingestor.list_runs()]
+        runs = [r for r in loaded if r is not None]
         compiler = KnowledgeCompiler(store)
         result = compiler.compile(runs=runs, include_app_state=app_state, kb_root=config.kb_dir)
         console.print(

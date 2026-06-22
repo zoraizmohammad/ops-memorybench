@@ -68,8 +68,8 @@ def mine_cmd() -> None:
         store.close()
 
 
-def _seed_demo_store(config) -> object:
-    """Sync fixtures and load the curated memory seed for the demo."""
+def _seed_demo_store(config):
+    """Sync fixtures and load the curated memory seed for the demo. Returns a Store."""
     store = open_store(config)
     es = EventStore(store.backend, store.blobs)
     clock = FrozenClock(datetime(2026, 5, 14, 18, 0, 0, tzinfo=UTC))

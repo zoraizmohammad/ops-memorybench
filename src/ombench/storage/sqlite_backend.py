@@ -12,7 +12,6 @@ import sqlite3
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
 
 from .backend import Params, Row, StorageBackend
 
@@ -116,19 +115,4 @@ class SQLiteBackend(StorageBackend):
             if not already:
                 conn.commit()
 
-    # -- convenience ------------------------------------------------------
-
-    def insert(self, table: str, values: dict[str, Any], *, replace: bool = False) -> None:
-        """Insert a row from a column to value mapping.
-
-        When ``replace`` is true an existing row with the same primary key is
-        overwritten, which the append only event log never uses but which is handy
-        for idempotent index upserts.
-        """
-        cols = list(values.keys())
-        placeholders = ", ".join("?" for _ in cols)
-        verb = "INSERT OR REPLACE" if replace else "INSERT"
-        sql = (
-            f"{verb} INTO {table} ({', '.join(cols)}) VALUES ({placeholders})"
-        )
-        self.execute(sql, [values[c] for c in cols])
+    # insert() is inherited from StorageBackend, expressed in terms of execute().
