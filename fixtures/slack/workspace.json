@@ -1,0 +1,50 @@
+{
+  "team": {"id": "T_ACME", "name": "Acme"},
+  "users": [
+    {"id": "U_ALICE", "name": "alice", "real_name": "Alice Aaronson", "tz": "America/Los_Angeles", "is_admin": true},
+    {"id": "U_BOB", "name": "bob", "real_name": "Bob Bryce", "tz": "America/New_York", "is_admin": false},
+    {"id": "U_CAROL", "name": "carol", "real_name": "Carol Chen", "tz": "America/New_York", "is_admin": false}
+  ],
+  "channels": [
+    {
+      "id": "C_LAUNCH",
+      "name": "launch-redwood",
+      "topic": "Coordinating the Redwood launch",
+      "is_private": false,
+      "created": "1714521600",
+      "members": ["U_ALICE", "U_BOB"]
+    },
+    {
+      "id": "C_GENERAL",
+      "name": "general",
+      "topic": "Company wide",
+      "is_private": false,
+      "created": "1704067200",
+      "members": ["U_ALICE", "U_BOB", "U_CAROL"]
+    },
+    {
+      "id": "C_ANNOUNCE",
+      "name": "announcements",
+      "topic": "Official announcements only",
+      "is_private": false,
+      "created": "1704067200",
+      "members": ["U_ALICE", "U_BOB", "U_CAROL"]
+    }
+  ],
+  "messages": {
+    "C_LAUNCH": [
+      {"ts": "1715000000.000100", "user": "U_ALICE", "text": "Kicking off the Redwood launch thread", "reactions": []},
+      {"ts": "1715000600.000200", "user": "U_BOB", "text": "We announce launches in announcements with the format Launch <name> is live", "reactions": [{"name": "white_check_mark", "users": ["U_ALICE"]}]},
+      {"ts": "1715100000.000300", "user": "U_ALICE", "text": "Reminder we always tag the approver before publishing", "reactions": []}
+    ],
+    "C_GENERAL": [
+      {"ts": "1715200000.000100", "user": "U_CAROL", "text": "Lunch at noon anyone", "reactions": []}
+    ],
+    "C_ANNOUNCE": [
+      {"ts": "1714000000.000100", "user": "U_ALICE", "text": "Launch Maple is live", "reactions": [{"name": "tada", "users": ["U_BOB", "U_CAROL"]}]}
+    ]
+  },
+  "edits": [
+    {"channel": "C_LAUNCH", "ts": "1715000600.000200", "edited_ts": "1715000900.000000", "text": "We announce launches in the announcements channel using the format Launch <name> is live"}
+  ]
+}
