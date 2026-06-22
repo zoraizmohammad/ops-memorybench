@@ -2,7 +2,7 @@
 #
 # ombench runs fully local first on SQLite plus a filesystem blob store, so this
 # compose file is NOT required to run the platform, the tests, or the demo. It is the
-# documented path for the production swap described in the writeup: a Postgres backend
+# documented path for the production swap: a Postgres backend
 # with pgvector behind the StorageBackend interface, and an object store for blobs.
 #
 # To use it, bring up the services, set the connection env vars, and implement a

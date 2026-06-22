@@ -4,7 +4,7 @@
 PY ?= .venv/bin/python
 PIP ?= $(PY) -m pip
 
-.PHONY: help venv install dev lint fmt typecheck test cov demo clean
+.PHONY: help venv install dev lint fmt typecheck test cov diagrams demo clean
 
 help:
 	@echo "Targets"
@@ -44,6 +44,9 @@ test:
 
 cov:
 	$(PY) -m pytest --cov=ombench --cov-report=term-missing
+
+diagrams:
+	plantuml -tsvg docs/diagrams/*.puml
 
 demo:
 	$(PY) -m ombench.cli.main demo

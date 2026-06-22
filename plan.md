@@ -34,8 +34,10 @@ documented future path).
 - [ ] Whole loop runs **keyless** (synthetic fixtures + deterministic stub) via one command.
 - [ ] Live paths (Anthropic LLM, real Slack/Google) activate when credentials are present.
 - [ ] Unit + integration + replay tests pass in CI. Coverage on core substrate.
-- [ ] Three deliverables produced: `README.md`, the architecture writeup (architecture decisions),
-      the timeline (sequential timeline with total hours).
+- [ ] `README.md` produced. The architecture decisions writeup and the timeline are
+      authored by the user, outside the repo, because the prompt requires the writeup
+      be written by the user; the `docs/` set holds the engineering rationale to write
+      from.
 - [ ] Every meaningful step committed (sole author Mohammad Zoraiz) and pushed. Commit titles
       and descriptions contain no colon `:` and no em/en dashes.
 
@@ -48,7 +50,7 @@ documented future path).
 | 1. Trajectory capture | `traces/` schema, ingest, redact, OTel/OpenInference adapter, Claude Code plugin | planned |
 | 2. State snapshots | `events/` bitemporal log, `storage/blobstore` content addressing, `snapshots/` materializer, `integrations/{slack,gcal,gdocs}` | planned |
 | 3. Knowledge base pipeline | `memory/` extractor, scorer, resolver, compiler, KB filesystem, retriever, router; cold-start bootstrap | planned |
-| 4. Good tasks + rubrics (writeup + curation) | `eval/tasks`, `eval/rubrics`, task miner, 15 curated benchmark tasks, the docs set | planned |
+| 4. Good tasks + rubrics (analysis + curation) | `eval/tasks`, `eval/rubrics`, task miner, 15 curated benchmark tasks, per task why_memory analysis | planned |
 | 5. Simulated environment | `replay/` sandbox, contracts, validators, frozen clock; per-app `sandbox_api` | planned |
 | 6. Backtest | `eval/runner`, `eval/judges`, `eval/stats`, `eval/reports` | planned |
 
@@ -125,7 +127,7 @@ Optional credentials (additive, never required):
 
 ```
 ops-memorybench/
-  README.md  the architecture writeup  the timeline  plan.md  handoff.md
+  README.md  plan.md  handoff.md
   pyproject.toml  LICENSE  .gitignore  .env.example  Makefile  docker-compose.yml
   .github/workflows/ci.yml
 
@@ -251,8 +253,8 @@ Each line is intended to be one commit. Build + test before each commit. Push af
 - C9.1 Add architecture documentation set
 - C9.2 Add end to end demo script and example run
 - C9.3 Add README with diagram example and results table
-- C9.4 Add the writeup with architecture decisions
-- C9.5 Add the timeline with hours
+- C9.4 Architecture decisions writeup authored by the user, outside the repo
+- C9.5 Timeline with hours authored by the user, outside the repo
 - C9.6 Add notebooks for benchmark mining and error analysis
 - C9.7 Final comprehensive review pass and fixes
 
@@ -287,9 +289,10 @@ replay contracts.
 
 1. `README.md` leading with architecture diagram, one concrete end-to-end task, and a paired
    with-memory vs without-memory results table.
-2. the architecture writeup detailing architectural decisions and tradeoffs, with thorough designs for any
-   parts not fully built.
-3. the timeline with a sequential record of work and total hours.
+2. A separate writeup of architectural decisions and tradeoffs, with thorough designs for any
+   parts not fully built. Authored by the user, outside the repo, because the prompt requires
+   the writeup be written by the user; the `docs/` set holds the rationale to write from.
+3. A sequential timeline of work with total hours. Authored by the user.
 
 ---
 

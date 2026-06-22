@@ -2,72 +2,41 @@
 ' Package layering: each layer depends only on the ones below it.
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica
-skinparam packageStyle rectangle
 skinparam shadowing false
-skinparam package {
+skinparam rectangle {
   BackgroundColor #F4F1EA
   BorderColor #555555
 }
+skinparam ArrowColor #555555
 
 title ombench package layers (dependencies point downward)
 
-package "cli + apps (operator surface)" as cli {
-  [omb trace/sync/snapshot/memory/eval/saasgit/viz]
-  [sync_worker]
-  [replay_runner]
-}
+rectangle "cli + apps\nomb trace/sync/snapshot/memory/eval/saasgit/viz,\nsync_worker, replay_runner" as cli
+rectangle "eval (Tasks 4 + 6)\ntasks, rubrics, judges, runner, stats, reports, miner, seed" as ev
+rectangle "replay (Task 5)\nsandbox, sandbox_api, validators, faults" as rp
+rectangle "memory (Task 3)\ncompiler, retriever, scorer, resolver, kb, bootstrap" as mem
+rectangle "llm\nbase, stub, anthropic_client, agent" as llm
+rectangle "integrations (Task 2 sources)\nbase, registry, slack, gcal, gdocs, gmail" as integ
+rectangle "snapshots (Task 2)\nmaterialize, manifest, diff" as snap
+rectangle "events (history substrate)\nschema/algebra, store, queries" as ev2
+rectangle "traces (Task 1)\nschema, ingest, redact, converters, hook, otel_adapter" as tr
+rectangle "storage\nStorageBackend, SQLiteBackend, PostgresBackend, BlobStore" as st
 
-package "eval (Tasks 4 + 6)" as eval {
-  [tasks] [rubrics] [judges] [runner] [stats] [reports] [miner] [seed]
-}
-
-package "replay (Task 5)" as replay {
-  [sandbox] [sandbox_api] [validators] [faults]
-}
-
-package "memory (Task 3)" as memory {
-  [compiler] [retriever] [scorer] [resolver] [kb] [bootstrap]
-}
-
-package "llm" as llm {
-  [base] [stub] [anthropic_client] [agent]
-}
-
-package "integrations (Task 2 sources)" as integ {
-  [base] [registry] [slack] [gcal] [gdocs] [gmail]
-}
-
-package "snapshots (Task 2)" as snapshots {
-  [materialize] [manifest] [diff]
-}
-
-package "events (history substrate)" as events {
-  [schema/algebra] [store] [queries]
-}
-
-package "traces (Task 1)" as traces {
-  [schema] [ingest] [redact] [converters] [hook] [otel_adapter]
-}
-
-package "storage" as storage {
-  [StorageBackend] [SQLiteBackend] [PostgresBackend] [BlobStore]
-}
-
-cli --> eval
-cli --> replay
-cli --> memory
+cli --> ev
+cli --> rp
+cli --> mem
 cli --> integ
-cli --> snapshots
-eval --> replay
-eval --> memory
-eval --> llm
-replay --> llm
-replay --> snapshots
-memory --> events
-llm --> traces
-integ --> events
-snapshots --> events
-traces --> storage
-events --> storage
+cli --> snap
+ev --> rp
+ev --> mem
+ev --> llm
+rp --> llm
+rp --> snap
+mem --> ev2
+llm --> tr
+integ --> ev2
+snap --> ev2
+tr --> st
+ev2 --> st
 
 @enduml

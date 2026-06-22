@@ -43,17 +43,16 @@ ombench is centered on a **history engine**, not on any single agent or app. The
 layers run from capture, through a bitemporal history substrate, to a compiled
 knowledge base, to a deterministic replay that proves causal value.
 
-![architecture](https://www.plantuml.com/plantuml/proxy?fmt=svg&cache=no&src=https://raw.githubusercontent.com/zoraizmohammad/ops-memorybench/main/docs/diagrams/architecture.puml)
+![architecture](docs/diagrams/architecture.svg)
 
 The packages depend strictly downward: each layer uses only the layers below it. This
 is what keeps the platform a real system rather than a pile of scripts.
 
-![layers](https://www.plantuml.com/plantuml/proxy?fmt=svg&cache=no&src=https://raw.githubusercontent.com/zoraizmohammad/ops-memorybench/main/docs/diagrams/layers.puml)
+![layers](docs/diagrams/layers.svg)
 
-> The diagrams above are rendered from PlantUML sources in
-> [`docs/diagrams/`](docs/diagrams/) via the PlantUML proxy server. If your viewer
-> does not fetch remote images, open the `.puml` files directly. The design rationale
-> behind this decomposition is in [`docs/architecture.md`](docs/architecture.md).
+> The diagrams above are committed SVGs rendered from the PlantUML sources in
+> [`docs/diagrams/`](docs/diagrams/) (regenerate with `make diagrams`). The design
+> rationale behind this decomposition is in [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
@@ -252,7 +251,7 @@ The two time axes are what make a backtest honest. A single event time would lea
 late arriving backfill into a replay, inflating what the agent appeared to know at the
 time:
 
-![bitemporal](https://www.plantuml.com/plantuml/proxy?fmt=svg&cache=no&src=https://raw.githubusercontent.com/zoraizmohammad/ops-memorybench/main/docs/diagrams/bitemporal.puml)
+![bitemporal](docs/diagrams/bitemporal.svg)
 
 Payloads are stored by SHA-256 of their canonical JSON in a git style content addressed
 blob store, giving deduplication, integrity, and cheap snapshots. A `SnapshotManifest`
@@ -291,7 +290,7 @@ on a four axis rubric. See [`docs/eval-protocol.md`](docs/eval-protocol.md).
 For each task the runner reconstructs the snapshot, seeds the sandbox, retrieves the
 KB, runs both conditions against the same state, and scores each on four axes:
 
-![backtest](https://www.plantuml.com/plantuml/proxy?fmt=svg&cache=no&src=https://raw.githubusercontent.com/zoraizmohammad/ops-memorybench/main/docs/diagrams/backtest.puml)
+![backtest](docs/diagrams/backtest.svg)
 
 The four rubric axes are scored separately so failures are interpretable: task outcome,
 memory retrieval (precision and recall over expected memory), memory application, and
@@ -362,7 +361,7 @@ production seams are real, not aspirational:
 
 The honest remaining gaps (no running scheduler, in process vector index, hashing
 embedder, filesystem blobs) are catalogued in [`handoff.md`](handoff.md) with the reason
-each is deferred, and the high fidelity designs are in the writeup §12.
+each is deferred and a high fidelity design for how to build it.
 
 ---
 
@@ -425,11 +424,10 @@ integration tests for sync, compile, replay, and the full backtest.
 
 ## Project documents
 
-- the writeup architectural decisions and tradeoffs, the Task 4 memory
-  task analysis, and high fidelity designs for parts left as future work.
-- the timeline a sequential record of the build with hours.
-- [`handoff.md`](handoff.md) the audited criteria checklist and the honest known gaps.
-- [`docs/`](docs/) the design documentation set and PlantUML diagram sources.
+- [`docs/`](docs/) the design documentation set and PlantUML diagram sources, covering
+  the architecture, the bitemporal model, the memory model, and the eval protocol.
+- [`handoff.md`](handoff.md) the audited criteria checklist and the honest known gaps,
+  each with a high fidelity design for how to build it.
 - [`plan.md`](plan.md) the full execution plan.
 
 ## License

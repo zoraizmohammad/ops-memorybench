@@ -5,7 +5,8 @@ Living status for the build. Update this after every commit. Read this plus `pla
 ## Current state
 
 - COMPLETE. All nine phases done. All six prompt tasks plus all twelve extensions built, documented, tested, and verified.
-- Deliverables: README (diagram, concrete example, honest results table), docs/ set, demo script + captured example, notebooks, docker-compose for the production swap, Claude Code capture plugin.
+- Deliverables in the repo: README (diagram, concrete example, honest results table), docs/ design set, demo script + captured example, notebooks, docker-compose for the production swap, Claude Code capture plugin.
+- The prompt's separate architecture writeup and the timeline are authored by the user and live outside the repo. The engineering rationale to write the architecture writeup from lives in the docs/ design set (architecture, bitemporal model, memory model, eval protocol).
 - An adversarial code review found and confirmed 15 correctness bugs, all fixed with regression tests. The most important was a measurement integrity issue: the headline now compares the outcome grounded score (task outcome + action validity), not the four axis total whose memory axes are zero for the without condition by construction.
 - A second independent audit verified every prompt criterion against the running code (see the checklist below). It moved two scalability over-claims to real implementations (Postgres backend, Gmail wired) and surfaced the genuine remaining gaps recorded below.
 - Honest headline result (keyless, deterministic): mean outcome score 0.38 to 1.0, success 7 percent to 100 percent, win rate 0.93 (14 of 15 tasks improve, 1 neutral, none regress), Wilcoxon p around 0.001 (0.0002 with SciPy).
@@ -39,11 +40,11 @@ Every requirement below was checked by reading the code and running it, not on f
 - [x] gstack / Karpathy LLM Wiki style (markdown with frontmatter)
 - [x] EXTENSION cold start from existing integration data (omb memory bootstrap)
 
-### Task 4 Good tasks + rubrics — COMPLETE
-- [x] the writeup analysis of what tasks test memory and how to filter (the docs set)
+### Task 4 Good tasks + rubrics — BUILD COMPLETE (analysis belongs in the user authored writeup)
+- [ ] Analysis of what tasks test memory and how to filter — belongs in the user's own architecture writeup; docs/eval-protocol.md has the engineering filter to write it from
 - [x] Curated tasks where memory should help (15 tasks in benchmarks/tasks)
 - [x] Each task has a rubric (memory_expected + expected_writes + forbidden_actions + four axis judge)
-- [x] Reasoning about good vs bad memory tasks (the docs set + each task's why_memory)
+- [x] Reasoning about good vs bad memory tasks captured per task in each task's why_memory field
 - [x] Tasks tied to trajectories via the miner (eval/miner.py)
 
 ### Task 5 Simulated environment — COMPLETE
@@ -62,22 +63,20 @@ Every requirement below was checked by reading the code and running it, not on f
 - [x] Organized as a real package, not one off scripts (src layout, layered subpackages, typed)
 - [ ] Production grade runtime plumbing — see Known gaps below
 
-### Outputs — COMPLETE (with one accepted constraint)
+### Outputs — README done; writeup and timeline authored by the user
 - [x] Git repo with README (to be shared with github.com/kevinrgu by adding as collaborator)
-- [x] Separate writeup of architectural decisions (the architecture writeup)
-- [x] Writeup includes high fidelity designs for parts not fully built (the docs set)
-- [~] Writeup not user authored — NOT satisfied; see Known gaps (user directed)
-- [x] Sequential timeline with total hours (the timeline)
+- [ ] Separate writeup of architectural decisions — authored by the user (the prompt requires this be written by the user). The docs/ set holds the decisions and rationale to write from.
+- [ ] Sequential timeline with total hours — authored by the user.
 
 ## Known gaps and why (honest)
 
 These are the items NOT done, each with the reason. Nothing here is a silent omission.
 
-1. **The required architecture writeup and the timeline are authored by the user, outside the repo.** The prompt requires the writeup to be written by the user. Everything needed to write both is in the repo: the docs/ design set, the per task why_memory fields, this checklist, and the commit history.
+1. **The required architecture writeup and the timeline are authored by the user, outside the repo.** The prompt requires the writeup to be written by the user. Everything needed to write both is in the repo: the docs/ design set (architecture, bitemporal, memory model, eval protocol), the per task why_memory fields, this checklist, and the commit history.
 
 2. **No continuously running sync worker / scheduler.** `apps/worker/sync_worker.py` has a tested `run_once` and a `run_forever` loop, but no scheduler, backpressure, retry/alerting, or live API credentials exercised in CI. Reason: the end to end loop runs on synthetic fixtures by design so it is keyless and PII free; standing up a real scheduler and live ingestion is operational work beyond a POC and would require live credentials. The correctness hard part (idempotent appends, deterministic ids, per stream cursors) is done.
 
-3. **In process vector index with a hashing embedder.** Retrieval rebuilds an in memory brute force vector index per query and the default embedder is a deterministic feature hashing embedder, not a learned model. Reason: this keeps the keyless path reproducible and dependency free; the `Embedder` interface and the retriever are the seam where a real embeddings provider and a persistent vector store (pgvector/Qdrant) drop in, documented in the docs set.
+3. **In process vector index with a hashing embedder.** Retrieval rebuilds an in memory brute force vector index per query and the default embedder is a deterministic feature hashing embedder, not a learned model. Reason: this keeps the keyless path reproducible and dependency free; the `Embedder` interface and the retriever are the seam where a real embeddings provider and a persistent vector store (pgvector/Qdrant) drop in.
 
 4. **Blob store is filesystem based, not an object store.** Content addressing, dedup, and integrity are real, but blobs live on local disk. Reason: same local first rationale; an S3 style BlobStore is the remaining storage swap behind the existing interface.
 

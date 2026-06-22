@@ -3,7 +3,7 @@
 Turns a :class:`BacktestReport` into the artifacts a reviewer wants to see: a paired
 with vs without memory results table, the per axis breakdown, and the supporting
 statistics. Markdown is the primary format because it drops straight into the README
-and the writeup; a compact summary dict supports programmatic use and the HTML
+and other docs; a compact summary dict supports programmatic use and the HTML
 dashboard.
 """
 

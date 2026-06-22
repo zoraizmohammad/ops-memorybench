@@ -53,7 +53,7 @@ class TaskSpec(BaseModel):
     forbidden_actions: list[str] = Field(default_factory=list)
     max_writes: int | None = 1
     rubric_id: str = "default"
-    # Why this task tests memory, for the writeup and review.
+    # Why this task tests memory, for documentation and review.
     why_memory: str = ""
 
     @property
