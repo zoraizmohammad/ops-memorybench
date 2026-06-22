@@ -50,7 +50,7 @@ class ConfidenceFeatures:
 # statement with a reliable source land around 0.8 and a lone uncertain extraction
 # land below 0.5.
 _B = {
-    "intercept": -0.6,
+    "intercept": -0.5,
     "explicit": 1.8,
     "repeated": 0.5,
     "corroborating": 0.6,
